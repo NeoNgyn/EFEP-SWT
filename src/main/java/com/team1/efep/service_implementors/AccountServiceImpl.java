@@ -12,10 +12,7 @@ import com.team1.efep.repositories.UserRepo;
 import com.team1.efep.repositories.WishlistRepo;
 import com.team1.efep.services.AccountService;
 import com.team1.efep.services.BuyerService;
-import com.team1.efep.utils.ConvertMapIntoStringUtil;
-import com.team1.efep.utils.GoogleLoginGeneratorUtil;
-import com.team1.efep.utils.GoogleLoginUtil;
-import com.team1.efep.utils.OutputCheckerUtil;
+import com.team1.efep.utils.*;
 import com.team1.efep.validations.*;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -131,7 +128,15 @@ public class AccountServiceImpl implements AccountService {
         Object output = loginLogic(request);
 
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, LoginResponse.class)) {
-            return (LoginResponse) output;
+            // Generate JWT Token
+            String token = JwtUtil.generateToken(request.getEmail());
+
+            // Include token in response
+            return LoginResponse.builder()
+                    .status("200")
+                    .message("Login successful")
+                    .token(token)
+                    .build();
         }
         return LoginResponse.builder()
                 .status("400")
