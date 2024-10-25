@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventFlowerExchange</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/all.min.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/myAccount.css">
+
+    <!-- <link rel="stylesheet" href="/css/all.min.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/main.css"> -->
+</head>
+
+<body>
+    <div class="wrap">
+        <!-- Nav Bar -->
+        <nav class="navbar" th:replace="~{base :: navbar}">
+
+        </nav>
+
+        <!-- Header -->
+        <header class="header" th:replace="~{base :: header}">
+
+        </header>
+
+        <!-- Container -->
+        <div class="container"></div>
+        <div class="container__wrap">
+            <!-- Breadbrum -->
+            <div class="breadbrum">
+                <h1 class="breadbrum__title">My Account</h1><br>
+                <ul class="breadbrum__element-list">
+                    <li class="breadbrum__element-list-item">
+                        <a th:href="@{/}" class="breadbrum__element-list-item-link">
+                            <i class="fa-solid fa-house"></i>
+                        </a>
+                    </li>
+
+                    <li class="breadbrum__element-list-item"></li>
+                    <a href="" class="breadbrum__element-list-item-link">
+                        <i class="fa-solid fa-angles-right"></i>
+                        <span>My Account</span>
+                    </a>
+                    </li>
+
+                    <li class="breadbrum__element-list-item">
+                        <a href="" class="breadbrum__element-list-item-link">
+                            <i class="fa-solid fa-angles-right"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="grid content">
+                <!-- Side bar -->
+                <div class="sidebar">
+                    <div class="sidebar__category">
+                        <h3 class="sidebar__heading">My Account</h3>
+                        <ul class="sidebar__list">
+                            <li class="sidebar__item">
+                                <a href="#" class="sidebar__item-link">
+                                    <span>Profile</span>
+                                </a>
+                            </li>
+                            <li class="sidebar__item">
+                                <form th:action="@{/change/password}" class="sidebar__item-link">
+                                    <input type="submit" name="action" class="sidebar__item-link-change-password" value="Change Password"></input>
+                                    <input type="hidden" name="id" th:value="${session.acc.id}"></input>
+                                </form>
+                            </li>
+                            <li class="sidebar__item">
+                                <a th:href="@{/buyer/order/history}" class="sidebar__item-link">
+                                    <span>Order History</span>
+                                </a>
+                            </li>
+                            <li class="sidebar__item">
+                                <a th:href="@{/buyer/wishlist}" class="sidebar__item-link">
+                                    <span>My Wishlist</span>
+                                </a>
+                            </li>
+                            <li class="sidebar__item">
+                                <a th:href="@{/account/logout}" class="sidebar__item-link">
+                                    <span>Log out</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="profile">
+
+                        <form th:action="@{/account/update/profile}" th:method="put" class="profile__form">
+                            <h3 class="profile__header">Your Profile</h3>
+                            <input type="hidden" name="id" th:value="${msg.id}"></input>
+                            <div class="profile__information">
+                                <div class="user__name profile__information-part">
+                                    <h3 class="form-label">Name</h3>
+                                    <input type="text" id="name" class="input-form" name="name" th:value="${msg.name}" required>
+                                </div>
+                                <div class="email profile__information-part">
+                                    <h3 class="form-label">E-Mail</h3>
+                                    <input type="email" id="email" class="input-form" name="email" th:value="${msg.email}" readonly >
+                                </div>
+                                <div class="phone profile__information-part">
+                                    <h3 class="form-label">Phone</h3>
+                                    <input type="tel" id="phone" class="input-form" name="phone" th:value="${msg.phone}">
+                                </div>
+
+                            </div>
+                            <div class="profile__avatar">
+                                <img th:src="${msg.avatar == null || msg.avatar == ''} ? '/img/default-avatar.jpg' : ${msg.avatar}" alt="Default Avatar" id="profile-avatar">
+                                <label for="input-file" class="choose-img-btn">Change Avatar</label>
+                                <input type="file" accept="image/*" value="" id="input-file" class="file-input">
+                                <input type="hidden" name="avatar" id="avatarUrl" th:value="${msg.avatar}">
+                                <div class="profile__avatar-note">
+                                    <span>Maximum file size is 3 MB</span>
+                                    <span>Format: .JPEG, .PNG</span>
+                                </div>
+                            </div>
+                            <input type="submit" name="action" class="update-btn btn btn--primary" value="Save Changes">
+                        </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Footer -->
+    <footer class="footer" th:replace="~{base :: footer}">
+
+    </footer>
+    </div>
+    <script type="module">
+        // Import Firebase and necessary functions from Firebase Storage
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+
+        // Your Firebase configuration (replace with your own keys)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYjgYhoSy319eFC4NxXzhEpPUUQdMobM8",
+            authDomain: "eventflowerexhangeplatform.firebaseapp.com",
+            projectId: "eventflowerexhangeplatform",
+            storageBucket: "eventflowerexhangeplatform.appspot.com",
+            messagingSenderId: "338080219481",
+            appId: "1:338080219481:web:c91006677d06e47bd6cc48",
+            measurementId: "G-8W6SH49XD9"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+
+        // Avatar upload logic
+        let profileAvatar = document.getElementById("profile-avatar");
+        let inputFile = document.getElementById("input-file");
+        let avatarUrlInput = document.getElementById("avatarUrl");  // Reference to hidden input
+
+        inputFile.onchange = async function () {
+            const file = inputFile.files[0];
+            if (file) {
+                // Use Firebase Storage ref to define the storage path
+                const storageRef = ref(storage, `images/avatars/${file.name}`);
+
+                try {
+                    // Upload the file
+                    const snapshot = await uploadBytes(storageRef, file);
+
+                    // Get the download URL
+                    const downloadURL = await getDownloadURL(snapshot.ref);
+
+                    // Update the image source to display the uploaded image
+                    profileAvatar.src = downloadURL;
+
+                    // Store the download URL in the hidden input field
+                    avatarUrlInput.value = downloadURL;
+
+                    console.log("File available at: ", downloadURL);
+
+                } catch (error) {
+                    console.error("Error uploading file: ", error);
+                }
+            }
+        };
+    </script>
+
+<!--    <script src="/js/jquery.js"></script>-->
+<!--    <script src="/js/bootstrap.min.js"></script>-->
+<!--    <script src="/js/jquery.scrollUp.min.js"></script>-->
+<!--    <script src="/js/price-range.js"></script>-->
+<!--    <script src="/js/jquery.prettyPhoto.js"></script>-->
+<!--    <script src="/js/base.js"></script>-->
+
+
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.scrollUp.min.js"></script>
+    <script src="/js/price-range.js"></script>
+    <script src="/js/jquery.prettyPhoto.js"></script>
+    <script src="/js/base.js"></script>
+    <script src="/js/myAccount.js"></script>
+</body>
+
+</html>
