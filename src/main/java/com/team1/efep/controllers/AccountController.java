@@ -14,8 +14,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-//@RestController
-@Controller
+@RestController
+//@Controller
 @RequiredArgsConstructor
 @RequestMapping("/account")
 @Tag(name = "Account")
