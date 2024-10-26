@@ -28,24 +28,24 @@ public class SellerController {
 
     @PutMapping("/flower")
     @Operation(hidden = true)
-    public String updateFlower(UpdateFlowerRequest request, HttpSession session, Model model) {
-        return sellerService.updateFlower(request, session, model);
+    public String updateFlower(@RequestHeader("Authorization") String token, UpdateFlowerRequest request, HttpSession session, Model model) {
+        return sellerService.updateFlower(token, request, session, model);
     }
 
     @PutMapping("/flower/api")
-    public UpdateFlowerResponse updateFlower(@RequestBody UpdateFlowerRequest request) {
-        return sellerService.updateFlowerAPI(request);
+    public UpdateFlowerResponse updateFlowerAPI(@RequestHeader("Authorization") String token, @RequestBody UpdateFlowerRequest request) {
+        return sellerService.updateFlowerAPI(token, request);
     }
 
     @DeleteMapping("/flower")
     @Operation(hidden = true)
-    public String deleteFlower(DeleteFlowerRequest request, HttpSession session, Model model) {
-        return sellerService.deleteFlower(request, session, model);
+    public String deleteFlower(@RequestHeader("Authorization") String token, DeleteFlowerRequest request, HttpSession session, Model model) {
+        return sellerService.deleteFlower(token, request, session, model);
     }
 
     @DeleteMapping("/flower/api")
-    public DeleteFlowerResponse deleteFlower(@RequestBody DeleteFlowerRequest request) {
-        return sellerService.deleteFlowerAPI(request);
+    public DeleteFlowerResponse deleteFlowerAPI(@RequestHeader("Authorization") String token, @RequestBody DeleteFlowerRequest request) {
+        return sellerService.deleteFlowerAPI(token, request);
     }
 
     @GetMapping("/flower/image")
@@ -86,20 +86,28 @@ public class SellerController {
         return sellerService.getAllFlowerStatus();
     }
 
+    @GetMapping("/view/flower")
+    public String viewFlowerListForSeller(@RequestHeader("Authorization") String token, HttpSession session, Model model) {
+        return sellerService.viewFlowerListForSeller(token, session, model);
+    }
+
     @GetMapping("/view/flower/api")
-    public ViewFlowerListForSellerResponse viewFlowerListForSeller(int sellerId) {
-        return sellerService.viewFlowerListForSellerAPI(sellerId);
+    public ViewFlowerListForSellerResponse viewFlowerListForSeller(@RequestHeader("Authorization") String token, int sellerId) {
+        return sellerService.viewFlowerListForSellerAPI(token, sellerId);
     }
 
     @PostMapping("/flower")
     @Operation(hidden = true)
-    public String createFlower(CreateFlowerRequest request, HttpSession session, Model model) {
-        return sellerService.createFlower(request, session, model);
+    public String createFlower(@RequestHeader("Authorization") String token,
+                               @RequestBody CreateFlowerRequest request,
+                               HttpSession session, Model model) {
+        return sellerService.createFlower(token, request, session, model);
     }
 
     @PostMapping("/flower/api")
-    public CreateFlowerResponse createFlower(@RequestBody CreateFlowerRequest request, HttpSession session) {
-        return sellerService.createFlowerAPI(request);
+    public CreateFlowerResponse createFlowerAPI(@RequestHeader("Authorization") String token,
+                                                @RequestBody CreateFlowerRequest request) {
+        return sellerService.createFlowerAPI(token, request);
     }
 
     //-------------------------------------------------------------------------------------------------//
@@ -119,21 +127,14 @@ public class SellerController {
 
     @GetMapping("/order/list")
     @Operation(hidden = true)
-    public String viewOrderList(HttpSession session, Model model) {
-        return sellerService.viewOrderList(session, model);
+    public String viewOrderList(@RequestHeader("Authorization") String token, HttpSession session, Model model) {
+        return sellerService.viewOrderList(token, session, model);
     }
 
     @GetMapping("/order/list/api/{id}")
-    public ViewOrderListResponse viewOrderListAPI(@PathVariable int id) {
-        return sellerService.viewOrderListAPI(id);
+    public ViewOrderListResponse viewOrderListAPI(@RequestHeader("Authorization") String token, @PathVariable int id) {
+        return sellerService.viewOrderListAPI(token, id);
     }
-
-    @GetMapping("/view/flower")
-    public String viewFlowerListForSeller(HttpSession session, Model model) {
-        return sellerService.viewFlowerListForSeller(session, model);
-    }
-
-
     @PutMapping("/order/detail")
     @Operation(hidden = true)
     public String viewOrderDetail(ViewOrderDetailRequest request, HttpSession session, Model model) {
