@@ -16,8 +16,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 
-@Controller
-//@RestController
+//@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/buyer")
 @Tag(name = "Buyer")
@@ -70,14 +70,19 @@ public class BuyerController {
     //---------------ORDER----------------//
     @GetMapping("/order/history")
     @Operation(hidden = true)
-    public String viewOrderHistory(HttpSession session, Model model) {
+    public String viewOrderHistory(
+            @RequestHeader("Authorization") String token, // Thêm token vào header
+            HttpSession session,
+            Model model) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.viewOrderHistory(session, model);
+        return buyerService.viewOrderHistory(session, model, token); // Truyền token vào phương thức viewOrderHistory
     }
 
     @GetMapping("/order/history/api/{accountId}")
-    public ViewOrderHistoryResponse viewOrderHistory(@PathVariable int accountId) {
-        return buyerService.viewOrderHistoryAPI(accountId);
+    public ViewOrderHistoryResponse viewOrderHistoryAPI(
+            @PathVariable int accountId,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return buyerService.viewOrderHistoryAPI(accountId, token); // Truyền token vào phương thức viewOrderHistoryAPI
     }
 
     @GetMapping("/order/detail")
@@ -106,39 +111,65 @@ public class BuyerController {
 
     @PutMapping("/order")
     @Operation(hidden = true)
-    public String cancelOrder(CancelOrderRequest request, HttpSession session, Model model) {
+    public String cancelOrder(
+            @RequestBody CancelOrderRequest request,
+            @RequestHeader("Authorization") String token, // Thêm token vào header
+            HttpSession session,
+            Model model) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.cancelOrder(request, session, model);
+        return buyerService.cancelOrder(request, session, model, token); // Truyền token vào phương thức cancelOrder
     }
 
     @PutMapping("/order/api")
-    public CancelOrderResponse updateWishlist(@RequestBody CancelOrderRequest request) {
-        return buyerService.cancelOrderAPI(request);
+    public CancelOrderResponse cancelOrderAPI(
+            @RequestBody CancelOrderRequest request,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return buyerService.cancelOrderAPI(request, token); // Truyền token vào phương thức cancelOrderAPI
     }
 
     @PostMapping("/order/payment")
     @Operation(hidden = true)
-    public String createVNPayPaymentLink(VNPayRequest request, Model model, HttpServletRequest httpServletRequest) {
+    public String createVNPayPaymentLink(
+            VNPayRequest request,
+            Model model,
+            HttpServletRequest httpServletRequest,
+            @RequestHeader("Authorization") String token) {
+
         AllPage.allConfig(model, buyerService);
-        return buyerService.createVNPayPaymentLink(request, model, httpServletRequest);
+        return buyerService.createVNPayPaymentLink(request, model, httpServletRequest, token);
     }
 
     @PostMapping("/order/payment/api")
-    public VNPayResponse createVNPayPaymentLink(@RequestBody VNPayRequest request, HttpServletRequest httpServletRequest) {
-        return buyerService.createVNPayPaymentLinkAPI(request, httpServletRequest);
+    public VNPayResponse createVNPayPaymentLinkAPI(
+            @RequestBody VNPayRequest request,
+            HttpServletRequest httpServletRequest,
+            @RequestHeader("Authorization") String token) {
+
+        return buyerService.createVNPayPaymentLinkAPI(request, httpServletRequest, token);
     }
 
     @GetMapping("/order/payment/result")
     @Operation(hidden = true)
-    public String getPaymentResult(@RequestParam Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session) {
+    public String getPaymentResult(
+            @RequestParam Map<String, String> params,
+            HttpServletRequest httpServletRequest,
+            Model model,
+            HttpSession session,
+            @RequestHeader("Authorization") String token) {
+
         AllPage.allConfig(model, buyerService);
-        return buyerService.getPaymentResult(params, httpServletRequest, model, session);
+        return buyerService.getPaymentResult(params, httpServletRequest, model, session, token);
     }
 
-//    @GetMapping("/order/payment/result")
-//    public VNPayResponse getPaymentResult(@RequestParam Map<String, String> params,@RequestParam int accountId, HttpServletRequest httpServletRequest){
-//        return buyerService.getPaymentResultAPI(params, accountId, httpServletRequest);
-//    }
+    @GetMapping("/order/payment/result/api")
+    public VNPayResponse getPaymentResultAPI(
+            @RequestParam Map<String, String> params,
+            @RequestParam int accountId,
+            HttpServletRequest httpServletRequest,
+            @RequestHeader("Authorization") String token) {
+
+        return buyerService.getPaymentResultAPI(params, accountId, httpServletRequest, token);
+    }
 
     @PostMapping("/order/cod")
     public String getCODPaymentResult(@RequestParam Map<String, String> params, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -149,62 +180,92 @@ public class BuyerController {
     //------------------------------------WISHLIST---------------------------------//
     @PutMapping("/wishlist")
     @Operation(hidden = true)
-    public String updateWishlist(UpdateWishlistRequest request, HttpSession session, Model model) {
+    public String updateWishlist(
+            UpdateWishlistRequest request,
+            @RequestHeader("Authorization") String token, // Thêm token vào header
+            HttpSession session,
+            Model model) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.updateWishlist(request, session, model);
+        return buyerService.updateWishlist(request, session, model, token); // Truyền token vào phương thức updateWishlist
     }
 
     @PutMapping("/wishlist/api")
-    public UpdateWishlistResponse updateWishlist(@RequestBody UpdateWishlistRequest request) {
-        return buyerService.updateWishlistAPI(request);
+    public UpdateWishlistResponse updateWishlistAPI(
+            @RequestBody UpdateWishlistRequest request,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return buyerService.updateWishlistAPI(request, token); // Truyền token vào phương thức updateWishlistAPI
     }
 
     @DeleteMapping("/wishlist")
     @Operation(hidden = true)
-    public String deleteWishlist(DeleteWishlistRequest request, HttpSession session, Model model) {
+    public String deleteWishlist(
+            DeleteWishlistRequest request,
+            @RequestHeader("Authorization") String token, // Thêm token vào header
+            HttpSession session,
+            Model model) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.deleteWishlist(request, session, model);
+        return buyerService.deleteWishlist(request, session, model, token); // Truyền token vào phương thức deleteWishlist
     }
 
     @DeleteMapping("/wishlist/api")
-    public DeleteWishlistResponse deleteWishlist(@RequestBody DeleteWishlistRequest request) {
-        return buyerService.deleteWishlistAPI(request);
+    public DeleteWishlistResponse deleteWishlistAPI(
+            @RequestBody DeleteWishlistRequest request,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return buyerService.deleteWishlistAPI(request, token); // Truyền token vào phương thức deleteWishlistAPI
     }
 
     @DeleteMapping("/wishlist-item")
     @Operation(hidden = true)
-    public String deleteWishlistItem(DeleteWishlistItemRequest request, HttpSession session, Model model) {
+    public String deleteWishlistItem(
+            DeleteWishlistItemRequest request,
+            @RequestHeader("Authorization") String token, // Thêm token vào header
+            HttpSession session,
+            Model model) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.deleteWishlistItem(request, session, model);
+        return buyerService.deleteWishlistItem(request, session, model, token); // Truyền token vào phương thức deleteWishlistItem
     }
 
     @DeleteMapping("/wishlist-item/api")
-    public DeleteWishlistItemResponse deleteWishlistItem(@RequestBody DeleteWishlistItemRequest request) {
-        return buyerService.deleteWishlistItemAPI(request);
+    public DeleteWishlistItemResponse deleteWishlistItemAPI(
+            @RequestBody DeleteWishlistItemRequest request,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return buyerService.deleteWishlistItemAPI(request, token); // Truyền token vào phương thức deleteWishlistItemAPI
     }
 
     @GetMapping("/wishlist")
     @Operation(hidden = true)
-    public String viewWishlist(HttpSession session, Model model) {
+    public String viewWishlist(@PathVariable int accountId, HttpSession session, Model model, @RequestHeader("Authorization") String token) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.viewWishlist(session, model);
+        return buyerService.viewWishlist(session, model, accountId, token);
     }
 
     @GetMapping("/wishlist/api/{accountId}")
-    public ViewWishlistResponse viewWishlist(@PathVariable int accountId) {
-        return buyerService.viewWishlistAPI(accountId);
+    public ViewWishlistResponse viewWishlistAPI(
+            @PathVariable int accountId,
+            @RequestHeader("Authorization") String token) {
+        return buyerService.viewWishlistAPI(accountId, token);
     }
+
 
     @PostMapping("/wishlist")
     @Operation(hidden = true)
-    public String addToWishlist(AddToWishlistRequest request,HttpServletRequest httpServletRequest, HttpSession session, Model model) {
+    public String addToWishlist(
+            AddToWishlistRequest request,
+            HttpServletRequest httpServletRequest,
+            HttpSession session,
+            Model model,
+            @RequestHeader("Authorization") String token) {
+
         AllPage.allConfig(model, buyerService);
-        return buyerService.addToWishlist(request, httpServletRequest, session, model);
+        return buyerService.addToWishlist(request, httpServletRequest, session, model, token);
     }
 
     @PostMapping("/wishlist/api")
-    public AddToWishlistResponse addToWishlist(@RequestBody AddToWishlistRequest request) {
-        return buyerService.addToWishlistAPI(request);
+    public AddToWishlistResponse addToWishlistAPI(
+            @RequestBody AddToWishlistRequest request,
+            @RequestHeader("Authorization") String token) {
+
+        return buyerService.addToWishlistAPI(request, token);
     }
     //-------------------------------------------------------------------------------//
 
@@ -233,7 +294,7 @@ public class BuyerController {
         return buyerService.viewFlowerDetail(request, model);
     }
 
-    @PostMapping("/flower/detail/api")
+    @GetMapping("/flower/detail/api")
     public ViewFlowerDetailResponse searchFlower(@RequestBody ViewFlowerDetailRequest request) {
         return buyerService.viewFlowerDetailAPI(request);
     }
@@ -250,9 +311,9 @@ public class BuyerController {
     }
 
     @GetMapping("/order/confirm")
-    public String confirmOrder(HttpSession session, Model model) {
+    public String confirmOrder(HttpSession session, Model model, @RequestHeader("Authorization") String token) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.confirmOrder(session, model);
+        return buyerService.confirmOrder(session, model, token);
     }
 
 

@@ -18,13 +18,12 @@ public interface BuyerService {
 
     RenewPasswordResponse renewPassAPI(RenewPasswordRequest request);
 
-    String viewWishlist(HttpSession session, Model model);
+    String viewWishlist(HttpSession session, Model model, int accountId, String token);
+    ViewWishlistResponse viewWishlistAPI(int accountId, String token);
 
-    ViewWishlistResponse viewWishlistAPI(int accountId);
 
-    String addToWishlist(AddToWishlistRequest request,HttpServletRequest httpServletRequest, HttpSession session, Model model);
-
-    AddToWishlistResponse addToWishlistAPI(AddToWishlistRequest request);
+    String addToWishlist(AddToWishlistRequest request, HttpServletRequest httpServletRequest, HttpSession session, Model model, String token);
+    AddToWishlistResponse addToWishlistAPI(AddToWishlistRequest request, String token);
 
     String viewFlowerList(HttpSession session, Model model);
 
@@ -34,13 +33,12 @@ public interface BuyerService {
 
     ViewSlideBarResponse viewSlideBarAPI();
 
-    String deleteWishlistItem(DeleteWishlistItemRequest request, HttpSession session, Model model);
+    String deleteWishlistItem(DeleteWishlistItemRequest request, HttpSession session, Model model, String token);
+    DeleteWishlistItemResponse deleteWishlistItemAPI(DeleteWishlistItemRequest request, String token);
 
-    DeleteWishlistItemResponse deleteWishlistItemAPI(DeleteWishlistItemRequest request);
 
-    String viewOrderHistory(HttpSession session, Model model);
-
-    ViewOrderHistoryResponse viewOrderHistoryAPI(int accountId);
+    String viewOrderHistory(HttpSession session, Model model, String token);
+    ViewOrderHistoryResponse viewOrderHistoryAPI(int accountId, String token);
 
     void viewFlowerTopList(int top, Model model);
 
@@ -62,33 +60,31 @@ public interface BuyerService {
 
     ViewOrderStatusResponse viewOrderStatusAPI(ViewOrderStatusRequest request);
 
-    String updateWishlist(UpdateWishlistRequest request, HttpSession session, Model model);
+    String updateWishlist(UpdateWishlistRequest request, HttpSession session, Model model, String token);
+    UpdateWishlistResponse updateWishlistAPI(UpdateWishlistRequest request, String token);
 
-    UpdateWishlistResponse updateWishlistAPI(UpdateWishlistRequest request);
+    String deleteWishlist(DeleteWishlistRequest request, HttpSession session, Model model, String token);
+    DeleteWishlistResponse deleteWishlistAPI(DeleteWishlistRequest request, String token);
 
-    String deleteWishlist(DeleteWishlistRequest request, HttpSession session, Model model);
+    String cancelOrder(CancelOrderRequest request, HttpSession session, Model model, String token);
+    CancelOrderResponse cancelOrderAPI(CancelOrderRequest request, String token);
 
-    DeleteWishlistResponse deleteWishlistAPI(DeleteWishlistRequest request);
+    String createVNPayPaymentLink(VNPayRequest request, Model model, HttpServletRequest httpServletRequest, String token);
 
-    String cancelOrder(CancelOrderRequest request, HttpSession session, Model model);
+    VNPayResponse createVNPayPaymentLinkAPI(VNPayRequest request, HttpServletRequest httpServletRequest, String token);
 
-    CancelOrderResponse cancelOrderAPI(CancelOrderRequest request);
 
-    String createVNPayPaymentLink(VNPayRequest request, Model model, HttpServletRequest httpServletRequest);
+    String getPaymentResult(Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session, String token);
 
-    VNPayResponse createVNPayPaymentLinkAPI(VNPayRequest request, HttpServletRequest httpServletRequest);
-
-    String getPaymentResult(Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session);
+    VNPayResponse getPaymentResultAPI(Map<String, String> params, int accountId, HttpServletRequest httpServletRequest, String token);
 
     String getCODPaymentResult(Map<String, String> params, HttpSession session, RedirectAttributes redirectAttributes);
-
-    VNPayResponse getPaymentResultAPI(Map<String, String> params, int accountId, HttpServletRequest httpServletRequest);
 
     void viewCategory(Model model);
 
     ViewCategoryListResponse viewCategoryAPI();
 
-    String confirmOrder(HttpSession session, Model model);
+    String confirmOrder(HttpSession session, Model model, String token);
 
     String handleOTP(String code, Model model, HttpSession session);
 

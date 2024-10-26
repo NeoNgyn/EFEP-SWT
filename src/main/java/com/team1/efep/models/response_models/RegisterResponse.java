@@ -15,4 +15,6 @@ public class RegisterResponse {
 
     private String message;
 
+    private int accountId;
+
 }

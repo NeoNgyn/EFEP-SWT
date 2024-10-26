@@ -12,10 +12,7 @@ import com.team1.efep.repositories.UserRepo;
 import com.team1.efep.repositories.WishlistRepo;
 import com.team1.efep.services.AccountService;
 import com.team1.efep.services.BuyerService;
-import com.team1.efep.utils.ConvertMapIntoStringUtil;
-import com.team1.efep.utils.GoogleLoginGeneratorUtil;
-import com.team1.efep.utils.GoogleLoginUtil;
-import com.team1.efep.utils.OutputCheckerUtil;
+import com.team1.efep.utils.*;
 import com.team1.efep.validations.*;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -68,21 +65,24 @@ public class AccountServiceImpl implements AccountService {
     private Object registerLogic(RegisterRequest request) {
         Map<String, String> errors = RegisterValidation.validate(request, accountRepo);
         if (errors.isEmpty()) {
-            createNewBuyer(request);
+            // Create new buyer and get account with generated ID
+            Account newAccount = createNewAccount(request);
+            createNewBuyer(request, newAccount);
+
+            // Return RegisterResponse with accountId
             return RegisterResponse.builder()
                     .status("200")
                     .message("Register successfully")
+                    .accountId(newAccount.getId()) // Set accountId here
                     .build();
         }
-
         return errors;
     }
 
-    private void createNewBuyer(RegisterRequest request) {
-
+    private void createNewBuyer(RegisterRequest request, Account account) {
         wishlistRepo.save(Wishlist.builder()
                 .user(userRepo.save(User.builder()
-                        .account(createNewAccount(request))
+                        .account(account)
                         .name(request.getName())
                         .phone(request.getPhone())
                         .avatar(request.getAvatar())
@@ -131,7 +131,15 @@ public class AccountServiceImpl implements AccountService {
         Object output = loginLogic(request);
 
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, LoginResponse.class)) {
-            return (LoginResponse) output;
+            // Generate JWT Token
+            String token = JwtUtil.generateToken(request.getEmail());
+
+            // Include token in response
+            return LoginResponse.builder()
+                    .status("200")
+                    .message("Login successful")
+                    .token(token)
+                    .build();
         }
         return LoginResponse.builder()
                 .status("400")
