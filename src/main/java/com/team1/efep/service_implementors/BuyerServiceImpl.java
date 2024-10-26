@@ -66,6 +66,7 @@ public class BuyerServiceImpl implements BuyerService {
         return "viewWishlist";
     }
 
+
     @Override
     public ViewWishlistResponse viewWishlistAPI(int accountId, String token) {
         Account account = validateTokenAndGetAccount(token);
@@ -223,15 +224,16 @@ public class BuyerServiceImpl implements BuyerService {
     //------------------------------UPDATE WISHLIST--------------------------------------//
 
     @Override
-    public String updateWishlist(UpdateWishlistRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String updateWishlist(UpdateWishlistRequest request, HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null) {
             model.addAttribute("error", "You are not logged in");
             return "redirect:/login";
         }
+        session.setAttribute("acc", account); // Lưu thông tin tài khoản vào session
+
         Object output = updateWishlistLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, UpdateWishlistResponse.class)) {
-            session.setAttribute("acc", accountRepo.findById(request.getAccountId()).orElse(null));
             model.addAttribute("msg", (UpdateWishlistResponse) output);
             return "redirect:/buyer/wishlist";
         }
@@ -240,24 +242,24 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public UpdateWishlistResponse updateWishlistAPI(UpdateWishlistRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public UpdateWishlistResponse updateWishlistAPI(UpdateWishlistRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null || !Role.checkIfThisAccountIsBuyer(account)) {
             return UpdateWishlistResponse.builder()
                     .status("400")
                     .message("Please login a buyer account to do this action")
                     .build();
         }
+
         Object output = updateWishlistLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, UpdateWishlistResponse.class)) {
             return (UpdateWishlistResponse) output;
         }
         return UpdateWishlistResponse.builder()
                 .status("400")
-                .message("Wishlist updated fail")
+                .message("Wishlist update failed")
                 .build();
     }
-
 
     private Object updateWishlistLogic(UpdateWishlistRequest request) {
         Map<String, String> error = UpdateWishlistValidation.validate(request, wishlistItemRepo);
@@ -291,28 +293,28 @@ public class BuyerServiceImpl implements BuyerService {
     //--------------------------------DELETE WISHLIST-----------------------------------//
 
     @Override
-    public String deleteWishlist(DeleteWishlistRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String deleteWishlist(DeleteWishlistRequest request, HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null) {
             model.addAttribute("error", "You are not logged in");
             return "redirect:/login";
         }
 
+        session.setAttribute("acc", account); // Lưu thông tin tài khoản vào session
+
         Object output = deleteWishlistLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, DeleteWishlistResponse.class)) {
-            session.setAttribute("acc", accountRepo.findById(request.getAccountId()).orElse(null));
             model.addAttribute("msg", (DeleteWishlistResponse) output);
             return "redirect:/buyer/wishlist";
         }
 
         model.addAttribute("response", (Map<String, String>) output);
-        session.setAttribute("acc", accountRepo.findById(request.getAccountId()).orElse(null));
         return "viewWishlist";
     }
 
     @Override
-    public DeleteWishlistResponse deleteWishlistAPI(DeleteWishlistRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public DeleteWishlistResponse deleteWishlistAPI(DeleteWishlistRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null || !Role.checkIfThisAccountIsBuyer(account)) {
             return DeleteWishlistResponse.builder()
                     .status("400")
@@ -326,8 +328,8 @@ public class BuyerServiceImpl implements BuyerService {
         }
 
         return DeleteWishlistResponse.builder()
-                .message("400")
-                .message("Wishlist deleted fail")
+                .status("400")
+                .message("Wishlist deletion failed")
                 .build();
     }
 
@@ -354,15 +356,16 @@ public class BuyerServiceImpl implements BuyerService {
     //----------------------------------------------DELETE WISHLIST ITEM----------------------------------------------//
 
     @Override
-    public String deleteWishlistItem(DeleteWishlistItemRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String deleteWishlistItem(DeleteWishlistItemRequest request, HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null) {
             model.addAttribute("error", "You are not logged in");
             return "redirect:/login";
         }
+        session.setAttribute("acc", account); // Lưu thông tin tài khoản vào session
+
         Object output = deleteWishlistItemLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, DeleteWishlistItemResponse.class)) {
-            session.setAttribute("acc", accountRepo.findById(request.getAccountId()).orElse(null));
             model.addAttribute("msg", (DeleteWishlistItemResponse) output);
             return "redirect:/buyer/wishlist";
         }
@@ -371,14 +374,15 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public DeleteWishlistItemResponse deleteWishlistItemAPI(DeleteWishlistItemRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public DeleteWishlistItemResponse deleteWishlistItemAPI(DeleteWishlistItemRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null) {
             return DeleteWishlistItemResponse.builder()
                     .status("400")
                     .message("You are not logged in")
                     .build();
         }
+
         Object output = deleteWishlistItemLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, DeleteWishlistItemResponse.class)) {
             return (DeleteWishlistItemResponse) output;
@@ -388,6 +392,7 @@ public class BuyerServiceImpl implements BuyerService {
                 .message(ConvertMapIntoStringUtil.convert((Map<String, String>) output))
                 .build();
     }
+
 
     private Object deleteWishlistItemLogic(DeleteWishlistItemRequest request) {
         Account account = accountRepo.findById(request.getAccountId()).orElse(null);
@@ -630,8 +635,8 @@ public class BuyerServiceImpl implements BuyerService {
     //--------------------------------------VIEW ORDER HISTORY------------------------------------------//
 
     @Override
-    public String viewOrderHistory(HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String viewOrderHistory(HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null || !Role.checkIfThisAccountIsBuyer(account)) {
             model.addAttribute("error", ViewOrderHistoryResponse.builder()
                     .status("400")
@@ -639,6 +644,8 @@ public class BuyerServiceImpl implements BuyerService {
                     .build());
             return "login";
         }
+        session.setAttribute("acc", account); // Lưu thông tin tài khoản vào session
+
         Object output = viewOrderHistoryLogic(account.getId());
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewOrderHistoryResponse.class)) {
             model.addAttribute("msg", (ViewOrderHistoryResponse) output);
@@ -649,14 +656,15 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public ViewOrderHistoryResponse viewOrderHistoryAPI(int accountId) {
-        Account account = Role.getCurrentLoggedAccount(accountId, accountRepo);
-        if (account == null || !Role.checkIfThisAccountIsBuyer(account)) {
+    public ViewOrderHistoryResponse viewOrderHistoryAPI(int accountId, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || account.getId() != accountId || !Role.checkIfThisAccountIsBuyer(account)) {
             return ViewOrderHistoryResponse.builder()
                     .status("400")
                     .message("Please login a buyer account to do this action")
                     .build();
         }
+
         Object output = viewOrderHistoryLogic(account.getId());
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewOrderHistoryResponse.class)) {
             return (ViewOrderHistoryResponse) output;
@@ -1013,8 +1021,8 @@ public class BuyerServiceImpl implements BuyerService {
     //--------------------------------CANCEL ORDER------------------------------------------//
 
     @Override
-    public String cancelOrder(CancelOrderRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String cancelOrder(CancelOrderRequest request, HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null || !Role.checkIfThisAccountIsBuyer(account)) {
             model.addAttribute("error", ChangeOrderStatusResponse.builder()
                     .status("400")
@@ -1022,23 +1030,28 @@ public class BuyerServiceImpl implements BuyerService {
                     .build());
             return "login";
         }
+
+        session.setAttribute("acc", account); // Lưu thông tin tài khoản vào session
+
         Object output = cancelOrderLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ChangeOrderStatusResponse.class)) {
             model.addAttribute("msg", (ChangeOrderStatusResponse) output);
+            return "buyer";
         }
         model.addAttribute("error", (Map<String, String>) output);
         return "buyer";
     }
 
     @Override
-    public CancelOrderResponse cancelOrderAPI(CancelOrderRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public CancelOrderResponse cancelOrderAPI(CancelOrderRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
         if (account == null || !Role.checkIfThisAccountIsBuyer(account)) {
-            ChangeOrderStatusResponse.builder()
+            return CancelOrderResponse.builder()
                     .status("400")
                     .message("Please login a buyer account to do this action")
                     .build();
         }
+
         Object output = cancelOrderLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, CancelOrderResponse.class)) {
             return (CancelOrderResponse) output;
