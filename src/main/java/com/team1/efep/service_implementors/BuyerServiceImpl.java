@@ -13,6 +13,7 @@ import com.team1.efep.utils.ConvertMapIntoStringUtil;
 import com.team1.efep.utils.FileReaderUtil;
 import com.team1.efep.utils.OTPGeneratorUtil;
 import com.team1.efep.utils.OutputCheckerUtil;
+import com.team1.efep.utils.*;
 import com.team1.efep.validations.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -48,13 +49,15 @@ public class BuyerServiceImpl implements BuyerService {
 
     //---------------------------------------VIEW WISHLIST------------------------------------------//
     @Override
-    public String viewWishlist(HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
-        if (account == null) {
-            model.addAttribute("error", "You must log in");
+    public String viewWishlist(HttpSession session, Model model, int accountId, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || account.getId() != accountId) {
+            model.addAttribute("error", "Unauthorized access. Please log in.");
             return "redirect:/login";
         }
-        Object output = viewWishlistLogic(account.getId());
+        session.setAttribute("acc", account);
+
+        Object output = viewWishlistLogic(accountId);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewWishlistResponse.class)) {
             model.addAttribute("msg", (ViewWishlistResponse) output);
             return "viewWishlist";
@@ -64,14 +67,15 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public ViewWishlistResponse viewWishlistAPI(int accountId) {
-        Account account = Role.getCurrentLoggedAccount(accountId, accountRepo);
-        if (account == null) {
+    public ViewWishlistResponse viewWishlistAPI(int accountId, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || account.getId() != accountId) {
             return ViewWishlistResponse.builder()
                     .status("400")
-                    .message("You are not logged in")
+                    .message("Unauthorized access. You are not logged in or do not have permission.")
                     .build();
         }
+
         Object output = viewWishlistLogic(accountId);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewWishlistResponse.class)) {
             return (ViewWishlistResponse) output;
@@ -126,18 +130,21 @@ public class BuyerServiceImpl implements BuyerService {
                 .toList();
     }
 
+
+
     //-------------------------------------------------ADD TO WISHLIST-----------------------------------------------------//
 
     @Override
-    public String addToWishlist(AddToWishlistRequest request, HttpServletRequest httpServletRequest, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String addToWishlist(AddToWishlistRequest request, HttpServletRequest httpServletRequest, HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null) {
             model.addAttribute("error", "You are not logged in");
             return "redirect:/login";
         }
+        session.setAttribute("acc", account);
+
         Object output = addToWishlistLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, AddToWishlistResponse.class)) {
-            session.setAttribute("acc", accountRepo.findById(request.getAccountId()).orElse(null));
             model.addAttribute("msg", (AddToWishlistResponse) output);
             return "redirect:" + httpServletRequest.getHeader("Referer");
         }
@@ -146,14 +153,15 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public AddToWishlistResponse addToWishlistAPI(AddToWishlistRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public AddToWishlistResponse addToWishlistAPI(AddToWishlistRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null) {
             return AddToWishlistResponse.builder()
                     .status("400")
                     .message("You are not logged in")
                     .build();
         }
+
         Object output = addToWishlistLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, AddToWishlistResponse.class)) {
             return (AddToWishlistResponse) output;
@@ -162,6 +170,18 @@ public class BuyerServiceImpl implements BuyerService {
                 .status("400")
                 .message(ConvertMapIntoStringUtil.convert((Map<String, String>) output))
                 .build();
+    }
+
+    private Account validateTokenAndGetAccount(String token) {
+        String email;
+        try {
+            email = JwtUtil.extractEmail(token.replace("Bearer ", ""));
+            if (email == null) return null;
+        } catch (Exception e) {
+            return null;
+        }
+
+        return accountRepo.findByEmail(email).orElse(null);
     }
 
     private Object addToWishlistLogic(AddToWishlistRequest request) {
@@ -1080,14 +1100,37 @@ public class BuyerServiceImpl implements BuyerService {
     //--------------------------------VN Pay------------------------------------------//
 
     @Override
-    public String createVNPayPaymentLink(VNPayRequest request, Model model, HttpServletRequest httpServletRequest) {
+    public String createVNPayPaymentLink(
+            VNPayRequest request,
+            Model model,
+            HttpServletRequest httpServletRequest,
+            String token) {
+
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+
         VNPayResponse vnPayResponse = createVNPayPaymentLinkLogic(request, httpServletRequest);
         model.addAttribute("msg", vnPayResponse);
         return "redirect:" + vnPayResponse.getPaymentURL();
     }
 
     @Override
-    public VNPayResponse createVNPayPaymentLinkAPI(VNPayRequest request, HttpServletRequest httpServletRequest) {
+    public VNPayResponse createVNPayPaymentLinkAPI(
+            VNPayRequest request,
+            HttpServletRequest httpServletRequest,
+            String token) {
+
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return VNPayResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
+
         return createVNPayPaymentLinkLogic(request, httpServletRequest);
     }
 
@@ -1113,6 +1156,8 @@ public class BuyerServiceImpl implements BuyerService {
         paramList.put("vnp_IpAddr", ipAddress);
         paramList.put("vnp_CreateDate", getCreateDate(calendar, formatter));
         paramList.put("vnp_ExpireDate", getExpiredDate(15, calendar, formatter));
+
+
 
         return VNPayResponse.builder()
                 .status("200")
@@ -1183,31 +1228,58 @@ public class BuyerServiceImpl implements BuyerService {
     //--------------------------------GET PAYMENT RESULT-------------------------------------//
 
     @Override
-    public String getPaymentResult(Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session) {
-        Account account = Role.getCurrentLoggedAccount(session);
-        assert account != null;
+    public String getPaymentResult(
+            Map<String, String> params,
+            HttpServletRequest httpServletRequest,
+            Model model,
+            HttpSession session,
+            String token) {
+
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+
+        session.setAttribute("acc", account);
+
         Object output = getPaymentResultLogic(params, account.getId(), httpServletRequest);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, VNPayResponse.class)) {
             model.addAttribute("msg", (VNPayResponse) output);
             session.setAttribute("acc", accountRepo.findById(account.getId()).orElse(null));
             return ((VNPayResponse) output).getPaymentURL();
         }
+
         model.addAttribute("error", (Map<String, String>) output);
         return "paymentFailed";
     }
 
     @Override
-    public VNPayResponse getPaymentResultAPI(Map<String, String> params, int accountId, HttpServletRequest httpServletRequest) {
+    public VNPayResponse getPaymentResultAPI(
+            Map<String, String> params,
+            int accountId,
+            HttpServletRequest httpServletRequest,
+            String token) {
+
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return VNPayResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
 
         Object output = getPaymentResultLogic(params, accountId, httpServletRequest);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, VNPayResponse.class)) {
             return (VNPayResponse) output;
         }
+
         return VNPayResponse.builder()
                 .status("400")
                 .message(ConvertMapIntoStringUtil.convert((Map<String, String>) output))
                 .build();
     }
+
 
     private Object getPaymentResultLogic(Map<String, String> params, int accountId, HttpServletRequest httpServletRequest) {
         User user = Role.getCurrentLoggedAccount(accountId, accountRepo).getUser();
@@ -1294,9 +1366,14 @@ public class BuyerServiceImpl implements BuyerService {
     //---------------------------------CHECK OUT---------------------------------//
 
     @Override
-    public String confirmOrder(HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
-        assert account != null;
+    public String confirmOrder(HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !account.equals(Role.getCurrentLoggedAccount(session))) {
+            model.addAttribute("error", "Unauthorized access. Please log in.");
+            return "login";
+        }
+
+        session.setAttribute("acc", account);
         model.addAttribute("msg", viewWishlistLogic(account.getId()));
         return "checkout";
     }
