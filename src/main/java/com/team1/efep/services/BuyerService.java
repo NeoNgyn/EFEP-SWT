@@ -18,13 +18,12 @@ public interface BuyerService {
 
     RenewPasswordResponse renewPassAPI(RenewPasswordRequest request);
 
-    String viewWishlist(HttpSession session, Model model);
+    String viewWishlist(HttpSession session, Model model, int accountId, String token);
+    ViewWishlistResponse viewWishlistAPI(int accountId, String token);
 
-    ViewWishlistResponse viewWishlistAPI(int accountId);
 
-    String addToWishlist(AddToWishlistRequest request,HttpServletRequest httpServletRequest, HttpSession session, Model model);
-
-    AddToWishlistResponse addToWishlistAPI(AddToWishlistRequest request);
+    String addToWishlist(AddToWishlistRequest request, HttpServletRequest httpServletRequest, HttpSession session, Model model, String token);
+    AddToWishlistResponse addToWishlistAPI(AddToWishlistRequest request, String token);
 
     String viewFlowerList(HttpSession session, Model model);
 
@@ -74,21 +73,22 @@ public interface BuyerService {
 
     CancelOrderResponse cancelOrderAPI(CancelOrderRequest request);
 
-    String createVNPayPaymentLink(VNPayRequest request, Model model, HttpServletRequest httpServletRequest);
+    String createVNPayPaymentLink(VNPayRequest request, Model model, HttpServletRequest httpServletRequest, String token);
 
-    VNPayResponse createVNPayPaymentLinkAPI(VNPayRequest request, HttpServletRequest httpServletRequest);
+    VNPayResponse createVNPayPaymentLinkAPI(VNPayRequest request, HttpServletRequest httpServletRequest, String token);
 
-    String getPaymentResult(Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session);
+
+    String getPaymentResult(Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session, String token);
+
+    VNPayResponse getPaymentResultAPI(Map<String, String> params, int accountId, HttpServletRequest httpServletRequest, String token);
 
     String getCODPaymentResult(Map<String, String> params, HttpSession session, RedirectAttributes redirectAttributes);
-
-    VNPayResponse getPaymentResultAPI(Map<String, String> params, int accountId, HttpServletRequest httpServletRequest);
 
     void viewCategory(Model model);
 
     ViewCategoryListResponse viewCategoryAPI();
 
-    String confirmOrder(HttpSession session, Model model);
+    String confirmOrder(HttpSession session, Model model, String token);
 
     String handleOTP(String code, Model model, HttpSession session);
 

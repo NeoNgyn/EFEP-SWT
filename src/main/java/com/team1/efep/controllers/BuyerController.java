@@ -118,27 +118,47 @@ public class BuyerController {
 
     @PostMapping("/order/payment")
     @Operation(hidden = true)
-    public String createVNPayPaymentLink(VNPayRequest request, Model model, HttpServletRequest httpServletRequest) {
+    public String createVNPayPaymentLink(
+            VNPayRequest request,
+            Model model,
+            HttpServletRequest httpServletRequest,
+            @RequestHeader("Authorization") String token) {
+
         AllPage.allConfig(model, buyerService);
-        return buyerService.createVNPayPaymentLink(request, model, httpServletRequest);
+        return buyerService.createVNPayPaymentLink(request, model, httpServletRequest, token);
     }
 
     @PostMapping("/order/payment/api")
-    public VNPayResponse createVNPayPaymentLink(@RequestBody VNPayRequest request, HttpServletRequest httpServletRequest) {
-        return buyerService.createVNPayPaymentLinkAPI(request, httpServletRequest);
+    public VNPayResponse createVNPayPaymentLinkAPI(
+            @RequestBody VNPayRequest request,
+            HttpServletRequest httpServletRequest,
+            @RequestHeader("Authorization") String token) {
+
+        return buyerService.createVNPayPaymentLinkAPI(request, httpServletRequest, token);
     }
 
     @GetMapping("/order/payment/result")
     @Operation(hidden = true)
-    public String getPaymentResult(@RequestParam Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session) {
+    public String getPaymentResult(
+            @RequestParam Map<String, String> params,
+            HttpServletRequest httpServletRequest,
+            Model model,
+            HttpSession session,
+            @RequestHeader("Authorization") String token) {
+
         AllPage.allConfig(model, buyerService);
-        return buyerService.getPaymentResult(params, httpServletRequest, model, session);
+        return buyerService.getPaymentResult(params, httpServletRequest, model, session, token);
     }
 
-//    @GetMapping("/order/payment/result")
-//    public VNPayResponse getPaymentResult(@RequestParam Map<String, String> params,@RequestParam int accountId, HttpServletRequest httpServletRequest){
-//        return buyerService.getPaymentResultAPI(params, accountId, httpServletRequest);
-//    }
+    @GetMapping("/order/payment/result/api")
+    public VNPayResponse getPaymentResultAPI(
+            @RequestParam Map<String, String> params,
+            @RequestParam int accountId,
+            HttpServletRequest httpServletRequest,
+            @RequestHeader("Authorization") String token) {
+
+        return buyerService.getPaymentResultAPI(params, accountId, httpServletRequest, token);
+    }
 
     @PostMapping("/order/cod")
     public String getCODPaymentResult(@RequestParam Map<String, String> params, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -185,26 +205,38 @@ public class BuyerController {
 
     @GetMapping("/wishlist")
     @Operation(hidden = true)
-    public String viewWishlist(HttpSession session, Model model) {
+    public String viewWishlist(@PathVariable int accountId, HttpSession session, Model model, @RequestHeader("Authorization") String token) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.viewWishlist(session, model);
+        return buyerService.viewWishlist(session, model, accountId, token);
     }
 
     @GetMapping("/wishlist/api/{accountId}")
-    public ViewWishlistResponse viewWishlist(@PathVariable int accountId) {
-        return buyerService.viewWishlistAPI(accountId);
+    public ViewWishlistResponse viewWishlistAPI(
+            @PathVariable int accountId,
+            @RequestHeader("Authorization") String token) {
+        return buyerService.viewWishlistAPI(accountId, token);
     }
+
 
     @PostMapping("/wishlist")
     @Operation(hidden = true)
-    public String addToWishlist(AddToWishlistRequest request,HttpServletRequest httpServletRequest, HttpSession session, Model model) {
+    public String addToWishlist(
+            AddToWishlistRequest request,
+            HttpServletRequest httpServletRequest,
+            HttpSession session,
+            Model model,
+            @RequestHeader("Authorization") String token) {
+
         AllPage.allConfig(model, buyerService);
-        return buyerService.addToWishlist(request, httpServletRequest, session, model);
+        return buyerService.addToWishlist(request, httpServletRequest, session, model, token);
     }
 
     @PostMapping("/wishlist/api")
-    public AddToWishlistResponse addToWishlist(@RequestBody AddToWishlistRequest request) {
-        return buyerService.addToWishlistAPI(request);
+    public AddToWishlistResponse addToWishlistAPI(
+            @RequestBody AddToWishlistRequest request,
+            @RequestHeader("Authorization") String token) {
+
+        return buyerService.addToWishlistAPI(request, token);
     }
     //-------------------------------------------------------------------------------//
 
@@ -233,7 +265,7 @@ public class BuyerController {
         return buyerService.viewFlowerDetail(request, model);
     }
 
-    @PostMapping("/flower/detail/api")
+    @GetMapping("/flower/detail/api")
     public ViewFlowerDetailResponse searchFlower(@RequestBody ViewFlowerDetailRequest request) {
         return buyerService.viewFlowerDetailAPI(request);
     }
@@ -250,9 +282,9 @@ public class BuyerController {
     }
 
     @GetMapping("/order/confirm")
-    public String confirmOrder(HttpSession session, Model model) {
+    public String confirmOrder(HttpSession session, Model model, @RequestHeader("Authorization") String token) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.confirmOrder(session, model);
+        return buyerService.confirmOrder(session, model, token);
     }
 
 
