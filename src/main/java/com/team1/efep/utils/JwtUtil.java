@@ -19,14 +19,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public static String extractEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject(); // Assumes email is set as subject during token creation
-    }
+
 
     public static boolean validateToken(String token) {
         try {
