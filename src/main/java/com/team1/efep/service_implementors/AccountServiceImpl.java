@@ -65,21 +65,24 @@ public class AccountServiceImpl implements AccountService {
     private Object registerLogic(RegisterRequest request) {
         Map<String, String> errors = RegisterValidation.validate(request, accountRepo);
         if (errors.isEmpty()) {
-            createNewBuyer(request);
+            // Create new buyer and get account with generated ID
+            Account newAccount = createNewAccount(request);
+            createNewBuyer(request, newAccount);
+
+            // Return RegisterResponse with accountId
             return RegisterResponse.builder()
                     .status("200")
                     .message("Register successfully")
+                    .accountId(newAccount.getId()) // Set accountId here
                     .build();
         }
-
         return errors;
     }
 
-    private void createNewBuyer(RegisterRequest request) {
-
+    private void createNewBuyer(RegisterRequest request, Account account) {
         wishlistRepo.save(Wishlist.builder()
                 .user(userRepo.save(User.builder()
-                        .account(createNewAccount(request))
+                        .account(account)
                         .name(request.getName())
                         .phone(request.getPhone())
                         .avatar(request.getAvatar())
