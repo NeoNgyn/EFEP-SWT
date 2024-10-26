@@ -10,6 +10,7 @@ import com.team1.efep.models.response_models.*;
 import com.team1.efep.repositories.*;
 import com.team1.efep.services.SellerService;
 import com.team1.efep.utils.ConvertMapIntoStringUtil;
+import com.team1.efep.utils.JwtUtil;
 import com.team1.efep.utils.OutputCheckerUtil;
 import com.team1.efep.validations.*;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -56,18 +57,19 @@ public class SellerServiceImpl implements SellerService {
     //--------------------------------------CREATE FLOWER------------------------------------------------//
 
     @Override
-    public String createFlower(CreateFlowerRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String createFlower(String token, CreateFlowerRequest request, HttpSession session, Model model) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             model.addAttribute("error", CreateFlowerResponse.builder()
                     .status("400")
-                    .message("Please login a seller account to do this action")
+                    .message("Please login with a seller account to perform this action")
                     .build());
             return "login";
         }
+
         Object output = createFlowerLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, CreateFlowerResponse.class)) {
-            model.addAttribute("msg1", (CreateFlowerResponse) output);
+            model.addAttribute("msg1", output);
             session.setAttribute("acc", accountRepo.findById(account.getId()).orElse(null));
             return "redirect:/manageFlower";
         }
@@ -76,14 +78,15 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public CreateFlowerResponse createFlowerAPI(CreateFlowerRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public CreateFlowerResponse createFlowerAPI(String token, CreateFlowerRequest request) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             return CreateFlowerResponse.builder()
                     .status("400")
-                    .message("Please login a seller account to do this action")
+                    .message("Please login with a seller account to perform this action")
                     .build();
         }
+
         Object output = createFlowerLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, CreateFlowerResponse.class)) {
             return (CreateFlowerResponse) output;
@@ -173,12 +176,12 @@ public class SellerServiceImpl implements SellerService {
     //---------------------------------------------VIEW ORDER LIST--------------------------------------------------------//
 
     @Override
-    public String viewOrderList(HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String viewOrderList(String token, HttpSession session, Model model) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             model.addAttribute("error", ViewOrderListResponse.builder()
                     .status("400")
-                    .message("Please login a seller account to do this action")
+                    .message("Please login with a valid seller account to perform this action")
                     .build());
             return "login";
         }
@@ -192,12 +195,12 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public ViewOrderListResponse viewOrderListAPI(int id) {
-        Account account = Role.getCurrentLoggedAccount(id, accountRepo);
+    public ViewOrderListResponse viewOrderListAPI(String token, int id) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             return ViewOrderListResponse.builder()
                     .status("400")
-                    .message("Please login a seller account to do this action")
+                    .message("Please login with a valid seller account to perform this action")
                     .build();
         }
         Object output = viewOrderListLogic(account.getId());
@@ -307,17 +310,44 @@ public class SellerServiceImpl implements SellerService {
 
 
     //--------------------------------------VIEW FLOWER LIST FOR SELLER---------------------------------------//
+    private Account validateTokenAndGetAccount(String token) {
+        String email;
+        try {
+            email = JwtUtil.extractEmail(token.replace("Bearer ", ""));
+            if (email == null) return null;
+        } catch (Exception e) {
+            return null;
+        }
+
+        return accountRepo.findByEmail(email).orElse(null);
+    }
 
     @Override
-    public String viewFlowerListForSeller(HttpSession session, Model model) {
-        model.addAttribute("msg", viewFlowerListForSellerLogic(((Account) session.getAttribute("acc")).getUser().getSeller().getId()));
+    public String viewFlowerListForSeller(String token, HttpSession session, Model model) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || account.getUser().getSeller() == null) {
+            model.addAttribute("error", "Unauthorized access");
+            return "errorPage";
+        }
+
+        model.addAttribute("msg", viewFlowerListForSellerLogic(account.getUser().getSeller().getId()));
         return "manageFlower";
     }
 
     @Override
-    public ViewFlowerListForSellerResponse viewFlowerListForSellerAPI(int sellerId) {
+    public ViewFlowerListForSellerResponse viewFlowerListForSellerAPI(String token, int sellerId) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || account.getUser().getSeller() == null || account.getUser().getSeller().getId() != sellerId) {
+            return ViewFlowerListForSellerResponse.builder()
+                    .status("401")
+                    .message("Unauthorized access")
+                    .flowerList(Collections.emptyList())
+                    .build();
+        }
+
         return viewFlowerListForSellerLogic(sellerId);
     }
+
 
     public ViewFlowerListForSellerResponse viewFlowerListForSellerLogic(int sellerId) {
         List<Flower> flowers = flowerRepo.findBySeller_Id(sellerId);
@@ -961,12 +991,12 @@ public class SellerServiceImpl implements SellerService {
     //------------------------------UPDATE FLOWER------------------------------------------//
 
     @Override
-    public String updateFlower(UpdateFlowerRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String updateFlower(String token, UpdateFlowerRequest request, HttpSession session, Model model) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
-            model.addAttribute("error", CreateFlowerResponse.builder()
+            model.addAttribute("error", UpdateFlowerResponse.builder()
                     .status("400")
-                    .message("Please login a seller account to do this action")
+                    .message("Please login with a valid seller account to perform this action")
                     .build());
             return "login";
         }
@@ -975,12 +1005,12 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public UpdateFlowerResponse updateFlowerAPI(UpdateFlowerRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public UpdateFlowerResponse updateFlowerAPI(String token, UpdateFlowerRequest request) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             return UpdateFlowerResponse.builder()
                     .status("400")
-                    .message("Please login a seller account to do this action")
+                    .message("Please login with a valid seller account to perform this action")
                     .build();
         }
         Object output = updateFlowerLogic(request);
@@ -1030,12 +1060,12 @@ public class SellerServiceImpl implements SellerService {
     //----------------------------------------DELETE FLOWER--------------------------------------------//
 
     @Override
-    public String deleteFlower(DeleteFlowerRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String deleteFlower(String token, DeleteFlowerRequest request, HttpSession session, Model model) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             model.addAttribute("error", DeleteFlowerResponse.builder()
                     .status("400")
-                    .message("Please login a seller account to do this action")
+                    .message("Please login with a valid seller account to perform this action")
                     .build());
             return "login";
         }
@@ -1044,12 +1074,12 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public DeleteFlowerResponse deleteFlowerAPI(DeleteFlowerRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public DeleteFlowerResponse deleteFlowerAPI(String token, DeleteFlowerRequest request) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             return DeleteFlowerResponse.builder()
                     .status("400")
-                    .message("Please login a seller account to do this action")
+                    .message("Please login with a valid seller account to perform this action")
                     .build();
         }
         return deleteFlowerLogic(request);
