@@ -14,5 +14,4 @@ public class VNPayResponse {
     private String status;
     private String message;
     private String paymentURL;
-    private Order order;
 }
