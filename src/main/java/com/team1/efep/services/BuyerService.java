@@ -33,13 +33,12 @@ public interface BuyerService {
 
     ViewSlideBarResponse viewSlideBarAPI();
 
-    String deleteWishlistItem(DeleteWishlistItemRequest request, HttpSession session, Model model);
+    String deleteWishlistItem(DeleteWishlistItemRequest request, HttpSession session, Model model, String token);
+    DeleteWishlistItemResponse deleteWishlistItemAPI(DeleteWishlistItemRequest request, String token);
 
-    DeleteWishlistItemResponse deleteWishlistItemAPI(DeleteWishlistItemRequest request);
 
-    String viewOrderHistory(HttpSession session, Model model);
-
-    ViewOrderHistoryResponse viewOrderHistoryAPI(int accountId);
+    String viewOrderHistory(HttpSession session, Model model, String token);
+    ViewOrderHistoryResponse viewOrderHistoryAPI(int accountId, String token);
 
     void viewFlowerTopList(int top, Model model);
 
@@ -61,17 +60,14 @@ public interface BuyerService {
 
     ViewOrderStatusResponse viewOrderStatusAPI(ViewOrderStatusRequest request);
 
-    String updateWishlist(UpdateWishlistRequest request, HttpSession session, Model model);
+    String updateWishlist(UpdateWishlistRequest request, HttpSession session, Model model, String token);
+    UpdateWishlistResponse updateWishlistAPI(UpdateWishlistRequest request, String token);
 
-    UpdateWishlistResponse updateWishlistAPI(UpdateWishlistRequest request);
+    String deleteWishlist(DeleteWishlistRequest request, HttpSession session, Model model, String token);
+    DeleteWishlistResponse deleteWishlistAPI(DeleteWishlistRequest request, String token);
 
-    String deleteWishlist(DeleteWishlistRequest request, HttpSession session, Model model);
-
-    DeleteWishlistResponse deleteWishlistAPI(DeleteWishlistRequest request);
-
-    String cancelOrder(CancelOrderRequest request, HttpSession session, Model model);
-
-    CancelOrderResponse cancelOrderAPI(CancelOrderRequest request);
+    String cancelOrder(CancelOrderRequest request, HttpSession session, Model model, String token);
+    CancelOrderResponse cancelOrderAPI(CancelOrderRequest request, String token);
 
     String createVNPayPaymentLink(VNPayRequest request, Model model, HttpServletRequest httpServletRequest, String token);
 
