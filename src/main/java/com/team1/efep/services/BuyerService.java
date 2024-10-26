@@ -18,9 +18,9 @@ public interface BuyerService {
 
     RenewPasswordResponse renewPassAPI(RenewPasswordRequest request);
 
-    String viewWishlist(HttpSession session, Model model);
+    String viewWishlist(HttpSession session, Model model, int accountId, String token);
 
-    ViewWishlistResponse viewWishlistAPI(int accountId);
+    ViewWishlistResponse viewWishlistAPI(int accountId, String token);
 
     String addToWishlist(AddToWishlistRequest request,HttpServletRequest httpServletRequest, HttpSession session, Model model);
 

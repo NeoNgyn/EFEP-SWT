@@ -185,15 +185,18 @@ public class BuyerController {
 
     @GetMapping("/wishlist")
     @Operation(hidden = true)
-    public String viewWishlist(HttpSession session, Model model) {
+    public String viewWishlist(@PathVariable int accountId, HttpSession session, Model model, @RequestHeader("Authorization") String token) {
         AllPage.allConfig(model, buyerService);
-        return buyerService.viewWishlist(session, model);
+        return buyerService.viewWishlist(session, model, accountId, token);
     }
 
     @GetMapping("/wishlist/api/{accountId}")
-    public ViewWishlistResponse viewWishlist(@PathVariable int accountId) {
-        return buyerService.viewWishlistAPI(accountId);
+    public ViewWishlistResponse viewWishlistAPI(
+            @PathVariable int accountId,
+            @RequestHeader("Authorization") String token) {
+        return buyerService.viewWishlistAPI(accountId, token);
     }
+
 
     @PostMapping("/wishlist")
     @Operation(hidden = true)

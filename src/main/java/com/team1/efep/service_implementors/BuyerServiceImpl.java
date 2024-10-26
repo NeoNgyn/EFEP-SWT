@@ -9,10 +9,7 @@ import com.team1.efep.models.request_models.*;
 import com.team1.efep.models.response_models.*;
 import com.team1.efep.repositories.*;
 import com.team1.efep.services.BuyerService;
-import com.team1.efep.utils.ConvertMapIntoStringUtil;
-import com.team1.efep.utils.FileReaderUtil;
-import com.team1.efep.utils.OTPGeneratorUtil;
-import com.team1.efep.utils.OutputCheckerUtil;
+import com.team1.efep.utils.*;
 import com.team1.efep.validations.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -48,13 +45,15 @@ public class BuyerServiceImpl implements BuyerService {
 
     //---------------------------------------VIEW WISHLIST------------------------------------------//
     @Override
-    public String viewWishlist(HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
-        if (account == null) {
-            model.addAttribute("error", "You must log in");
+    public String viewWishlist(HttpSession session, Model model, int accountId, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || account.getId() != accountId) {
+            model.addAttribute("error", "Unauthorized access. Please log in.");
             return "redirect:/login";
         }
-        Object output = viewWishlistLogic(account.getId());
+        session.setAttribute("acc", account);
+
+        Object output = viewWishlistLogic(accountId);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewWishlistResponse.class)) {
             model.addAttribute("msg", (ViewWishlistResponse) output);
             return "viewWishlist";
@@ -63,15 +62,17 @@ public class BuyerServiceImpl implements BuyerService {
         return "viewWishlist";
     }
 
+
     @Override
-    public ViewWishlistResponse viewWishlistAPI(int accountId) {
-        Account account = Role.getCurrentLoggedAccount(accountId, accountRepo);
-        if (account == null) {
+    public ViewWishlistResponse viewWishlistAPI(int accountId, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || account.getId() != accountId) {
             return ViewWishlistResponse.builder()
                     .status("400")
-                    .message("You are not logged in")
+                    .message("Unauthorized access. You are not logged in or do not have permission.")
                     .build();
         }
+
         Object output = viewWishlistLogic(accountId);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewWishlistResponse.class)) {
             return (ViewWishlistResponse) output;
@@ -81,6 +82,7 @@ public class BuyerServiceImpl implements BuyerService {
                 .message(ConvertMapIntoStringUtil.convert((Map<String, String>) output))
                 .build();
     }
+
 
     private Object viewWishlistLogic(int accountId) {
         Map<String, String> error = ViewWishlistValidation.validate(accountId, accountRepo);
@@ -106,7 +108,17 @@ public class BuyerServiceImpl implements BuyerService {
                 .wishlistItemList(viewWishlistItemList(accountId))
                 .build();
     }
+    private Account validateTokenAndGetAccount(String token) {
+        String email;
+        try {
+            email = JwtUtil.extractEmail(token.replace("Bearer ", ""));
+            if (email == null) return null;
+        } catch (Exception e) {
+            return null;
+        }
 
+        return accountRepo.findByEmail(email).orElse(null);
+    }
     private List<ViewWishlistResponse.WishlistItems> viewWishlistItemList(int accountId) {
         Account account = accountRepo.findById(accountId).orElse(null);
         assert account != null;
