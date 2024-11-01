@@ -8,41 +8,38 @@ import org.springframework.ui.Model;
 
 public interface AdminService {
 
-    String createBusinessPlan(CreateBusinessPlanRequest request, Model model);
+    String createBusinessPlan(CreateBusinessPlanRequest request, Model model, String token);
 
-    CreateBusinessPlanResponse createBusinessPlanAPI(CreateBusinessPlanRequest request);
+    CreateBusinessPlanResponse createBusinessPlanAPI(CreateBusinessPlanRequest request, String token);
 
-    String updateBusinessPlan(UpdateBusinessPlanRequest request, Model model);
+    String updateBusinessPlan(UpdateBusinessPlanRequest request, Model model, String token);
 
-    UpdateBusinessPlanResponse updateBusinessPlanAPI(UpdateBusinessPlanRequest request);
+    UpdateBusinessPlanResponse updateBusinessPlanAPI(UpdateBusinessPlanRequest request, String token);
 
-    String disableBusinessPlan(DisableBusinessPlanRequest request, Model model);
+    String disableBusinessPlan(DisableBusinessPlanRequest request, Model model, String token);
 
-    DisableBusinessPlanResponse disableBusinessPlanAPI(DisableBusinessPlanRequest request);
+    DisableBusinessPlanResponse disableBusinessPlanAPI(DisableBusinessPlanRequest request, String token);
 
-    String createBusinessService(CreateBusinessServiceRequest request, Model model);
+    String createBusinessService(CreateBusinessServiceRequest request, Model model, String token);
+    CreateBusinessServiceResponse createBusinessServiceAPI(CreateBusinessServiceRequest request, String token);
 
-    CreateBusinessServiceResponse createBusinessServiceAPI(CreateBusinessServiceRequest request);
+    String updateBusinessService(UpdateBusinessServiceRequest request, Model model, String token);
 
-    String updateBusinessService(UpdateBusinessServiceRequest request, Model model);
+    UpdateBusinessServiceResponse updateBusinessServiceAPI(UpdateBusinessServiceRequest request, String token);
 
-    UpdateBusinessServiceResponse updateBusinessServiceAPI(UpdateBusinessServiceRequest request);
-
-    String deleteBusinessService(DeleteBusinessServiceRequest request, Model model);
-
-    DeleteBusinessServiceResponse deleteBusinessServiceAPI(DeleteBusinessServiceRequest request);
+    String deleteBusinessService(DeleteBusinessServiceRequest request, Model model, String token);
+    DeleteBusinessServiceResponse deleteBusinessServiceAPI(DeleteBusinessServiceRequest request, String token);
 
     String viewUserList(HttpSession session, Model model);
 
     ViewUserListResponse viewUserListAPI();
 
-    String viewBusinessPlan(HttpSession session, Model model);
+    String viewBusinessPlan(HttpSession session, Model model, String token);
 
-    ViewBusinessPlanResponse viewBusinessPlanAPI();
+    ViewBusinessPlanResponse viewBusinessPlanAPI(String token);
 
-    String viewBusinessService(HttpSession session, Model model);
-
-    ViewBusinessServiceResponse viewBusinessServiceAPI();
+    String viewBusinessService(HttpSession session, Model model, String token);
+    ViewBusinessServiceResponse viewBusinessServiceAPI(String token);
 
     String banUser(BanUserRequest request, Model model);
 

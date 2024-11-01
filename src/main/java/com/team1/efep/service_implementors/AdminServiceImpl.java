@@ -13,6 +13,7 @@ import com.team1.efep.utils.ConvertMapIntoStringUtil;
 import com.team1.efep.utils.FileReaderUtil;
 import com.team1.efep.utils.OTPGeneratorUtil;
 import com.team1.efep.utils.OutputCheckerUtil;
+import com.team1.efep.utils.*;
 import com.team1.efep.validations.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -49,13 +50,28 @@ public class AdminServiceImpl implements AdminService {
 
     //-------------------------------------VIEW BUSINESS PLAN----------------------------//
     @Override
-    public String viewBusinessPlan(HttpSession session, Model model) {
+    public String viewBusinessPlan(HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+        session.setAttribute("acc", account);
+
         model.addAttribute("msg", viewBusinessPlanLogic());
         return "manageBusinessPlan";
     }
 
     @Override
-    public ViewBusinessPlanResponse viewBusinessPlanAPI() {
+    public ViewBusinessPlanResponse viewBusinessPlanAPI(String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return ViewBusinessPlanResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
+
         return viewBusinessPlanLogic();
     }
 
@@ -105,7 +121,13 @@ public class AdminServiceImpl implements AdminService {
 
     //-------------------------------------CREATE BUSINESS PLAN------------------------------------------//
     @Override
-    public String createBusinessPlan(CreateBusinessPlanRequest request, Model model) {
+    public String createBusinessPlan(CreateBusinessPlanRequest request, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+
         Object output = createBusinessPlanLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, CreateBusinessPlanResponse.class)) {
             model.addAttribute("msg", (CreateBusinessPlanResponse) output);
@@ -116,7 +138,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public CreateBusinessPlanResponse createBusinessPlanAPI(CreateBusinessPlanRequest request) {
+    public CreateBusinessPlanResponse createBusinessPlanAPI(CreateBusinessPlanRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return CreateBusinessPlanResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
+
         Object output = createBusinessPlanLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, CreateBusinessPlanResponse.class)) {
             return (CreateBusinessPlanResponse) output;
@@ -184,7 +214,13 @@ public class AdminServiceImpl implements AdminService {
     //-------------------------------------UPDATE BUSINESS PLAN------------------------------------------//
 
     @Override
-    public String updateBusinessPlan(UpdateBusinessPlanRequest request, Model model) {
+    public String updateBusinessPlan(UpdateBusinessPlanRequest request, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+
         Object output = updateBusinessPlanLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, UpdateBusinessPlanResponse.class)) {
             model.addAttribute("msg", (UpdateBusinessPlanResponse) output);
@@ -196,7 +232,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public UpdateBusinessPlanResponse updateBusinessPlanAPI(UpdateBusinessPlanRequest request) {
+    public UpdateBusinessPlanResponse updateBusinessPlanAPI(UpdateBusinessPlanRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return UpdateBusinessPlanResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
+
         Object output = updateBusinessPlanLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, UpdateBusinessPlanResponse.class)) {
             return (UpdateBusinessPlanResponse) output;
@@ -296,7 +340,13 @@ public class AdminServiceImpl implements AdminService {
     //-------------------------------------DISABLE BUSINESS PLAN------------------------------------------//
 
     @Override
-    public String disableBusinessPlan(DisableBusinessPlanRequest request, Model model) {
+    public String disableBusinessPlan(DisableBusinessPlanRequest request, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+
         Object output = disableBusinessPlanLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, DisableBusinessPlanResponse.class)) {
             model.addAttribute("msg", (DisableBusinessPlanResponse) output);
@@ -307,7 +357,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public DisableBusinessPlanResponse disableBusinessPlanAPI(DisableBusinessPlanRequest request) {
+    public DisableBusinessPlanResponse disableBusinessPlanAPI(DisableBusinessPlanRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return DisableBusinessPlanResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
+
         Object output = disableBusinessPlanLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, DisableBusinessPlanResponse.class)) {
             return (DisableBusinessPlanResponse) output;
@@ -336,13 +394,27 @@ public class AdminServiceImpl implements AdminService {
     //-------------------------------------VIEW BUSINESS SERVICE----------------------------//
 
     @Override
-    public String viewBusinessService(HttpSession session, Model model) {
+    public String viewBusinessService(HttpSession session, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+        session.setAttribute("acc", account);
+
         model.addAttribute("msg", viewBusinessServiceLogic());
         return "manageBusinessService";
     }
 
     @Override
-    public ViewBusinessServiceResponse viewBusinessServiceAPI() {
+    public ViewBusinessServiceResponse viewBusinessServiceAPI(String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return ViewBusinessServiceResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
         return viewBusinessServiceLogic();
     }
 
@@ -370,7 +442,14 @@ public class AdminServiceImpl implements AdminService {
 
     //-------------------------------------CREATE BUSINESS SERVICE----------------------------//
     @Override
-    public String createBusinessService(CreateBusinessServiceRequest request, Model model) {
+    public String createBusinessService(CreateBusinessServiceRequest request, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+
+
         Object output = createBusinessServiceLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, CreateBusinessServiceResponse.class)) {
             model.addAttribute("msg", (CreateBusinessServiceResponse) output);
@@ -381,7 +460,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public CreateBusinessServiceResponse createBusinessServiceAPI(CreateBusinessServiceRequest request) {
+    public CreateBusinessServiceResponse createBusinessServiceAPI(CreateBusinessServiceRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return CreateBusinessServiceResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
+
         Object output = createBusinessServiceLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, CreateBusinessServiceResponse.class)) {
             return (CreateBusinessServiceResponse) output;
@@ -411,10 +498,28 @@ public class AdminServiceImpl implements AdminService {
                 .build();
     }
 
+    private Account validateTokenAndGetAccount(String token) {
+        String email;
+        try {
+            email = JwtUtil.extractEmail(token.replace("Bearer ", ""));
+            if (email == null) return null;
+        } catch (Exception e) {
+            return null;
+        }
+
+        return accountRepo.findByEmail(email).orElse(null);
+    }
+
     //-------------------------------------UPDATE BUSINESS SERVICE----------------------------//
 
     @Override
-    public String updateBusinessService(UpdateBusinessServiceRequest request, Model model) {
+    public String updateBusinessService(UpdateBusinessServiceRequest request, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+
         Object output = updateBusinessServiceLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, UpdateBusinessServiceResponse.class)) {
             model.addAttribute("msg", (UpdateBusinessServiceResponse) output);
@@ -425,7 +530,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public UpdateBusinessServiceResponse updateBusinessServiceAPI(UpdateBusinessServiceRequest request) {
+    public UpdateBusinessServiceResponse updateBusinessServiceAPI(UpdateBusinessServiceRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return UpdateBusinessServiceResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
+
         Object output = updateBusinessServiceLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, UpdateBusinessServiceResponse.class)) {
             return (UpdateBusinessServiceResponse) output;
@@ -458,18 +571,32 @@ public class AdminServiceImpl implements AdminService {
     //-------------------------------------DELETE BUSINESS SERVICE----------------------------//
 
     @Override
-    public String deleteBusinessService(DeleteBusinessServiceRequest request, Model model) {
+    public String deleteBusinessService(DeleteBusinessServiceRequest request, Model model, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            model.addAttribute("error", "You are not logged in");
+            return "redirect:/login";
+        }
+
         Object output = deleteBusinessServiceLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, DeleteBusinessServiceResponse.class)) {
             model.addAttribute("msg", (DeleteBusinessServiceResponse) output);
             return "redirect:/admin/view/service";
         }
         model.addAttribute("error", (Map<String, String>) output);
-        return "home";
+        return "redirect:/admin/view/service";
     }
 
     @Override
-    public DeleteBusinessServiceResponse deleteBusinessServiceAPI(DeleteBusinessServiceRequest request) {
+    public DeleteBusinessServiceResponse deleteBusinessServiceAPI(DeleteBusinessServiceRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null) {
+            return DeleteBusinessServiceResponse.builder()
+                    .status("400")
+                    .message("You are not logged in")
+                    .build();
+        }
+
         Object output = deleteBusinessServiceLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, DeleteBusinessServiceResponse.class)) {
             return (DeleteBusinessServiceResponse) output;

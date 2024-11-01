@@ -11,8 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-//@RestController
-@Controller
+@RestController
+//@Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 @Tag(name = "Admin")
@@ -21,68 +21,68 @@ public class AdminController {
 
     @PostMapping("/plan")
     @Operation(hidden = true)
-    public String createBusinessPlan(CreateBusinessPlanRequest request, Model model) {
-        return adminService.createBusinessPlan(request, model);
+    public String createBusinessPlan(CreateBusinessPlanRequest request, Model model, @RequestHeader("Authorization") String token) {
+        return adminService.createBusinessPlan(request, model, token);
     }
 
     @PostMapping("/plan/api")
-    public CreateBusinessPlanResponse createBusinessPlan(@RequestBody CreateBusinessPlanRequest request) {
-        return adminService.createBusinessPlanAPI(request);
+    public CreateBusinessPlanResponse createBusinessPlan(@RequestBody CreateBusinessPlanRequest request, @RequestHeader("Authorization") String token) {
+        return adminService.createBusinessPlanAPI(request, token);
     }
 
     @PutMapping("/plan")
     @Operation(hidden = true)
-    public String updateBusinessPlan(UpdateBusinessPlanRequest request, Model model) {
-        return adminService.updateBusinessPlan(request, model);
+    public String updateBusinessPlan(UpdateBusinessPlanRequest request, Model model, @RequestHeader("Authorization") String token) {
+        return adminService.updateBusinessPlan(request, model, token);
     }
 
     @PutMapping("/plan/api")
-    public UpdateBusinessPlanResponse updateBusinessPlan(@RequestBody UpdateBusinessPlanRequest request) {
-        return adminService.updateBusinessPlanAPI(request);
+    public UpdateBusinessPlanResponse updateBusinessPlan(@RequestBody UpdateBusinessPlanRequest request, @RequestHeader("Authorization") String token) {
+        return adminService.updateBusinessPlanAPI(request, token);
     }
 
     @DeleteMapping("/plan")
     @Operation(hidden = true)
-    public String disableBusinessPlan(DisableBusinessPlanRequest request, Model model) {
-        return adminService.disableBusinessPlan(request, model);
+    public String disableBusinessPlan(DisableBusinessPlanRequest request, Model model, @RequestHeader("Authorization") String token) {
+        return adminService.disableBusinessPlan(request, model, token);
     }
 
     @DeleteMapping("/plan/api")
-    public DisableBusinessPlanResponse disableBusinessPlan(@RequestBody DisableBusinessPlanRequest request) {
-        return adminService.disableBusinessPlanAPI(request);
+    public DisableBusinessPlanResponse disableBusinessPlan(@RequestBody DisableBusinessPlanRequest request, @RequestHeader("Authorization") String token) {
+        return adminService.disableBusinessPlanAPI(request, token);
     }
 
     @PostMapping("/service")
     @Operation(hidden = true)
-    public String createBusinessService(CreateBusinessServiceRequest request, Model model) {
-        return adminService.createBusinessService(request, model);
+    public String createBusinessService(CreateBusinessServiceRequest request, Model model, @RequestHeader("Authorization") String token) {
+        return adminService.createBusinessService(request, model, token);
     }
 
     @PostMapping("/service/api")
-    public CreateBusinessServiceResponse createBusinessService(@RequestBody CreateBusinessServiceRequest request) {
-        return adminService.createBusinessServiceAPI(request);
+    public CreateBusinessServiceResponse createBusinessService(@RequestBody CreateBusinessServiceRequest request, @RequestHeader("Authorization") String token) {
+        return adminService.createBusinessServiceAPI(request, token);
     }
 
     @PutMapping("/service")
     @Operation(hidden = true)
-    public String updateBusinessService(UpdateBusinessServiceRequest request, Model model) {
-        return adminService.updateBusinessService(request, model);
+    public String updateBusinessService(UpdateBusinessServiceRequest request, Model model, @RequestHeader("Authorization") String token) {
+        return adminService.updateBusinessService(request, model, token);
     }
 
     @PutMapping("/service/api")
-    public UpdateBusinessServiceResponse updateBusinessService(@RequestBody UpdateBusinessServiceRequest request) {
-        return adminService.updateBusinessServiceAPI(request);
+    public UpdateBusinessServiceResponse updateBusinessService(@RequestBody UpdateBusinessServiceRequest request, @RequestHeader("Authorization") String token) {
+        return adminService.updateBusinessServiceAPI(request, token);
     }
 
     @DeleteMapping("/service")
     @Operation(hidden = true)
-    public String deleteBusinessService(DeleteBusinessServiceRequest request, Model model) {
-        return adminService.deleteBusinessService(request, model);
+    public String deleteBusinessService(DeleteBusinessServiceRequest request, Model model, @RequestHeader("Authorization") String token) {
+        return adminService.deleteBusinessService(request, model, token);
     }
 
     @DeleteMapping("/service/api")
-    public DeleteBusinessServiceResponse deleteBusinessService(@RequestBody DeleteBusinessServiceRequest request) {
-        return adminService.deleteBusinessServiceAPI(request);
+    public DeleteBusinessServiceResponse deleteBusinessService(@RequestBody DeleteBusinessServiceRequest request, @RequestHeader("Authorization") String token) {
+        return adminService.deleteBusinessServiceAPI(request, token);
     }
 
     @GetMapping("/user/list")
@@ -98,24 +98,25 @@ public class AdminController {
 
     @GetMapping("/view/plan")
     @Operation(hidden = true)
-    public String viewBusinessPlan(HttpSession session, Model model) {
-        return adminService.viewBusinessPlan(session, model);
+    public String viewBusinessPlan(HttpSession session, Model model, @RequestHeader("Authorization") String token) {
+        return adminService.viewBusinessPlan(session, model, token);
     }
 
     @GetMapping("/view/plan/api")
-    public ViewBusinessPlanResponse viewBusinessPlan() {
-        return adminService.viewBusinessPlanAPI();
+    public ViewBusinessPlanResponse viewBusinessPlan(@RequestHeader("Authorization") String token) {
+
+        return adminService.viewBusinessPlanAPI(token);
     }
 
     @GetMapping("/view/service")
     @Operation(hidden = true)
-    public String viewBusinessService(HttpSession session, Model model) {
-        return adminService.viewBusinessService(session, model);
+    public String viewBusinessService(HttpSession session, Model model, @RequestHeader("Authorization") String token) {
+        return adminService.viewBusinessService(session, model, token);
     }
 
     @GetMapping("/view/service/api")
-    public ViewBusinessServiceResponse viewBusinessService() {
-        return adminService.viewBusinessServiceAPI();
+    public ViewBusinessServiceResponse viewBusinessService(@RequestHeader("Authorization") String token) {
+        return adminService.viewBusinessServiceAPI(token);
     }
 
     @PostMapping("/search/user/")
