@@ -11,21 +11,21 @@ import java.util.Map;
 
 public interface SellerService {
 
-    String createFlower(CreateFlowerRequest request, HttpSession session, Model model);
+    String createFlower(String token, CreateFlowerRequest request, HttpSession session, Model model);
 
-    CreateFlowerResponse createFlowerAPI(CreateFlowerRequest request);
+    CreateFlowerResponse createFlowerAPI(String token, CreateFlowerRequest request);
 
     String changeOrderStatus(ChangeOrderStatusRequest request, HttpSession session, Model model);
 
     ChangeOrderStatusResponse changeOrderStatusAPI(ChangeOrderStatusRequest request);
 
-    String viewOrderList(HttpSession session, Model model);
+    String viewOrderList(String token, HttpSession session, Model model);
 
-    ViewOrderListResponse viewOrderListAPI(int id);
+    ViewOrderListResponse viewOrderListAPI(String token, int id);
 
-    String viewFlowerListForSeller(HttpSession session, Model model);
+    String viewFlowerListForSeller(String token, HttpSession session, Model model);
 
-    ViewFlowerListForSellerResponse viewFlowerListForSellerAPI(int sellerId);
+    ViewFlowerListForSellerResponse viewFlowerListForSellerAPI(String token, int sellerId);
 
     String viewBusinessPlan(HttpSession session, Model model);
 
@@ -63,15 +63,14 @@ public interface SellerService {
 
     SortOrderResponse sortOrderAPI(FilterOrderRequest filterOrderRequest, SortOrderRequest sortOrderRequest);
 
-    String updateFlower(UpdateFlowerRequest request, HttpSession session, Model model);
-
-    UpdateFlowerResponse updateFlowerAPI(UpdateFlowerRequest request);
+    String updateFlower(String token, UpdateFlowerRequest request, HttpSession session, Model model);
+    UpdateFlowerResponse updateFlowerAPI(String token, UpdateFlowerRequest request);
 
     List<String> getAllFlowerStatus();
 
-    String deleteFlower(DeleteFlowerRequest request, HttpSession session, Model model);
+    String deleteFlower(String token, DeleteFlowerRequest request, HttpSession session, Model model);
 
-    DeleteFlowerResponse deleteFlowerAPI(DeleteFlowerRequest request);
+    DeleteFlowerResponse deleteFlowerAPI(String token, DeleteFlowerRequest request);
 
     String viewFlowerImage(ViewFlowerImageRequest request, HttpSession session, Model model);
 

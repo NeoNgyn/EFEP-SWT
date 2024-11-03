@@ -30,7 +30,4 @@ public class UpdateFlowerRequest {
 
     private int quantity;
 
-    private List<FlowerImage> flowerImageList;
-
-    private List<FlowerCategory> flowerCategoryList;
 }

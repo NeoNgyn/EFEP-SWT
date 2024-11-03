@@ -63,8 +63,8 @@ public class PageController {
     }
 
     @GetMapping("/manageFlower")
-    public String manageFlowerPage(HttpSession session, Model model) {
-        sellerService.viewFlowerListForSeller(session, model);
+    public String manageFlowerPage(String token,HttpSession session, Model model) {
+        sellerService.viewFlowerListForSeller(token, session, model);
         return "manageFlower";
     }
 
