@@ -32,9 +32,9 @@ public interface AdminService {
 
     DeleteBusinessServiceResponse deleteBusinessServiceAPI(DeleteBusinessServiceRequest request);
 
-    String viewUserList(HttpSession session, Model model);
+    String viewUserList(HttpSession session, Model model, String token);
 
-    ViewUserListResponse viewUserListAPI();
+    ViewUserListResponse viewUserListAPI(String token);
 
     String viewBusinessPlan(HttpSession session, Model model);
 
@@ -44,17 +44,18 @@ public interface AdminService {
 
     ViewBusinessServiceResponse viewBusinessServiceAPI();
 
-    String banUser(BanUserRequest request, Model model);
+    String banUser(BanUserRequest request, Model model, String token);
 
-    BanUserResponse banUserAPI(BanUserRequest request);
+    BanUserResponse banUserAPI(BanUserRequest request, String token);
 
-    String unBanUser(UnBanUserRequest request, Model model);
+    String unBanUser(UnBanUserRequest request, Model model, String token);
 
-    UnBanUserResponse unBanUserAPI(UnBanUserRequest request);
+    UnBanUserResponse unBanUserAPI(UnBanUserRequest request, String token);;
 
-    String searchUserList(HttpSession session, SearchUserListRequest request, Model model);
+    String searchUserList(HttpSession session, SearchUserListRequest request, Model model, String token);
 
-    SearchUserListResponse searchUserListAPI(SearchUserListRequest request);
+    SearchUserListResponse searchUserListAPI(SearchUserListRequest request, String token);
+
 
     String createAccountForSeller(CreateAccountForSellerRequest request, Model model);
 
