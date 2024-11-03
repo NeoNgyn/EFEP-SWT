@@ -254,8 +254,8 @@ public class SellerServiceImpl implements SellerService {
     //-----------------------------------CHANGE ORDER STATUS----------------------------------------//
 
     @Override
-    public String changeOrderStatus(ChangeOrderStatusRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String changeOrderStatus(ChangeOrderStatusRequest request, String token, Model model) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             model.addAttribute("error", ChangeOrderStatusResponse.builder()
                     .status("400")
@@ -263,23 +263,26 @@ public class SellerServiceImpl implements SellerService {
                     .build());
             return "login";
         }
+
         Object output = changeOrderStatusLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ChangeOrderStatusResponse.class)) {
             model.addAttribute("msg", (ChangeOrderStatusResponse) output);
+        } else {
+            model.addAttribute("error", (Map<String, String>) output);
         }
-        model.addAttribute("error", (Map<String, String>) output);
         return "seller";
     }
 
     @Override
-    public ChangeOrderStatusResponse changeOrderStatusAPI(ChangeOrderStatusRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public ChangeOrderStatusResponse changeOrderStatusAPI(ChangeOrderStatusRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
-            ChangeOrderStatusResponse.builder()
+            return ChangeOrderStatusResponse.builder()
                     .status("400")
                     .message("Please login a seller account to do this action")
                     .build();
         }
+
         Object output = changeOrderStatusLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ChangeOrderStatusResponse.class)) {
             return (ChangeOrderStatusResponse) output;
@@ -386,13 +389,29 @@ public class SellerServiceImpl implements SellerService {
     //----------------------------------------VIEW BUSINESS PLAN FOR SELLER--------------------------------------------//
 
     @Override
-    public String viewBusinessPlan(HttpSession session, Model model) {
+    public String viewBusinessPlan(String token, Model model) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            model.addAttribute("error", ViewBusinessPlanResponse.builder()
+                    .status("400")
+                    .message("Please login as a seller account to do this action")
+                    .build());
+            return "redirect:/login";
+        }
+
         model.addAttribute("msg", viewBusinessPlanLogic());
         return "planList";
     }
 
     @Override
-    public ViewBusinessPlanResponse viewBusinessPlanAPI() {
+    public ViewBusinessPlanResponse viewBusinessPlanAPI(String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            return ViewBusinessPlanResponse.builder()
+                    .status("400")
+                    .message("Please login as a seller account to do this action")
+                    .build();
+        }
 
         return viewBusinessPlanLogic();
     }
@@ -486,8 +505,17 @@ public class SellerServiceImpl implements SellerService {
     //-----------------------------------------VIEW BUYER LIST--------------------------------------//
 
     @Override
-    public String viewBuyerList(HttpSession session, Model model) {
-        Object output = viewBuyerListLogic(((Account) session.getAttribute("acc")).getUser().getSeller().getId());
+    public String viewBuyerList(String token, Model model) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            model.addAttribute("error", ViewBuyerListResponse.builder()
+                    .status("400")
+                    .message("Please login a seller account to do this action")
+                    .build());
+            return "redirect:/login";
+        }
+
+        Object output = viewBuyerListLogic(account.getUser().getSeller().getId());
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewBuyerListResponse.class)) {
             model.addAttribute("msg", (ViewBuyerListResponse) output);
             return "buyerList";
@@ -497,8 +525,16 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public ViewBuyerListResponse viewBuyerListAPI(ViewBuyerListRequest request) {
-        Object output = viewBuyerListLogic(request.getId());
+    public ViewBuyerListResponse viewBuyerListAPI(ViewBuyerListRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            return ViewBuyerListResponse.builder()
+                    .status("400")
+                    .message("Please login a seller account to do this action")
+                    .build();
+        }
+
+        Object output = viewBuyerListLogic(account.getUser().getSeller().getId());
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewBuyerListResponse.class)) {
             return (ViewBuyerListResponse) output;
         }
@@ -586,32 +622,35 @@ public class SellerServiceImpl implements SellerService {
     //--------------------------------VIEW ORDER DETAIL-----------------------------------//
 
     @Override
-    public String viewOrderDetail(ViewOrderDetailRequest request, HttpSession session, Model model) {
-        Account account = Role.getCurrentLoggedAccount(session);
+    public String viewOrderDetail(String token, ViewOrderDetailRequest request, Model model) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
-            model.addAttribute("error", ViewOrderHistoryResponse.builder()
+            model.addAttribute("error", ViewOrderDetailResponse.builder()
                     .status("400")
                     .message("Please login a seller account to do this action")
                     .build());
             return "login";
         }
+
         Object output = viewOrderDetailLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewOrderDetailResponse.class)) {
             model.addAttribute("msg", (ViewOrderDetailResponse) output);
+        } else {
+            model.addAttribute("error", (Map<String, String>) output);
         }
-        model.addAttribute("error", (Map<String, String>) output);
         return "seller";
     }
 
     @Override
-    public ViewOrderDetailResponse viewOrderDetailAPI(ViewOrderDetailRequest request) {
-        Account account = Role.getCurrentLoggedAccount(request.getAccountId(), accountRepo);
+    public ViewOrderDetailResponse viewOrderDetailAPI(String token, ViewOrderDetailRequest request) {
+        Account account = validateTokenAndGetAccount(token);
         if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
             return ViewOrderDetailResponse.builder()
                     .status("400")
                     .message("Please login a seller account to do this action")
                     .build();
         }
+
         Object output = viewOrderDetailLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, ViewOrderDetailResponse.class)) {
             return (ViewOrderDetailResponse) output;
@@ -772,14 +811,31 @@ public class SellerServiceImpl implements SellerService {
     //-------------------------------------------------VN PAY----------------------------------------//
 
     @Override
-    public String createVNPayPaymentLink(VNPayBusinessPlanRequest request, Model model, HttpServletRequest httpServletRequest) {
+    public String createVNPayPaymentLink(String token, VNPayBusinessPlanRequest request, Model model, HttpServletRequest httpServletRequest) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            model.addAttribute("error", VNPayResponse.builder()
+                    .status("400")
+                    .message("Please login with a seller account to perform this action.")
+                    .build());
+            return "redirect:/login";
+        }
+
         VNPayResponse vnPayResponse = createVNPayPaymentLinkLogic(request, httpServletRequest);
         model.addAttribute("msg", vnPayResponse);
         return "redirect:" + vnPayResponse.getPaymentURL();
     }
 
     @Override
-    public VNPayResponse createVNPayPaymentLinkAPI(VNPayBusinessPlanRequest request, HttpServletRequest httpServletRequest) {
+    public VNPayResponse createVNPayPaymentLinkAPI(String token, VNPayBusinessPlanRequest request, HttpServletRequest httpServletRequest) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            return VNPayResponse.builder()
+                    .status("400")
+                    .message("Please login with a seller account to perform this action.")
+                    .build();
+        }
+
         return createVNPayPaymentLinkLogic(request, httpServletRequest);
     }
 
@@ -881,9 +937,16 @@ public class SellerServiceImpl implements SellerService {
     //------------------------GET PAYMENT RESULT-------------------------------------//
 
     @Override
-    public String getPaymentResult(Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session) {
-        Account account = Role.getCurrentLoggedAccount(session);
-        assert account != null;
+    public String getPaymentResult(String token, Map<String, String> params, HttpServletRequest httpServletRequest, Model model) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            model.addAttribute("error", VNPayResponse.builder()
+                    .status("400")
+                    .message("Please login with a seller account to perform this action.")
+                    .build());
+            return "redirect:/login";
+        }
+
         Object output = getPaymentResultLogic(params, account.getId(), httpServletRequest);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, VNPayResponse.class)) {
             model.addAttribute("msg", (VNPayResponse) output);
@@ -894,9 +957,16 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public VNPayResponse getPaymentResultAPI(Map<String, String> params, int accountId, HttpServletRequest httpServletRequest) {
+    public VNPayResponse getPaymentResultAPI(String token, Map<String, String> params, HttpServletRequest httpServletRequest) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            return VNPayResponse.builder()
+                    .status("400")
+                    .message("Please login with a seller account to perform this action.")
+                    .build();
+        }
 
-        Object output = getPaymentResultLogic(params, accountId, httpServletRequest);
+        Object output = getPaymentResultLogic(params, account.getId(), httpServletRequest);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, VNPayResponse.class)) {
             return (VNPayResponse) output;
         }
@@ -1254,23 +1324,34 @@ public class SellerServiceImpl implements SellerService {
 //----------------------------------------VIEW BUSINESS PLAN DETAIL----------------------------------------------//
 
     @Override
-    public String viewBusinessPlanDetail(HttpSession session, Model model) {
-        Seller seller = Objects.requireNonNull(Role.getCurrentLoggedAccount(session)).getUser().getSeller();
+    public String viewBusinessPlanDetail(String token, Model model) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            model.addAttribute("error", "Please login with a seller account to view the business plan.");
+            return "redirect:/login";
+        }
+
+        Seller seller = account.getUser().getSeller();
         if (seller.getBusinessPlan() == null) {
             model.addAttribute("nullPlan", "No business plan found for the seller.");
             return "sellerPlan";
         }
+
         int planId = seller.getBusinessPlan().getId();
         model.addAttribute("msg", viewBusinessPlanDetailLogic(planId));
-//        model.addAttribute("msg", viewBusinessPlanDetailLogic(
-//                Role.getCurrentLoggedAccount(session).getUser().getSeller().getBusinessPlan().getId()
-//        ));
-
         return "sellerPlan";
     }
 
     @Override
-    public ViewBusinessPlanDetailResponse viewBusinessPlanDetailAPI(ViewBusinessPlanDetailRequest request) {
+    public ViewBusinessPlanDetailResponse viewBusinessPlanDetailAPI(String token, ViewBusinessPlanDetailRequest request) {
+        Account account = validateTokenAndGetAccount(token);
+        if (account == null || !Role.checkIfThisAccountIsSeller(account)) {
+            return ViewBusinessPlanDetailResponse.builder()
+                    .status("400")
+                    .message("Please login with a seller account to view the business plan.")
+                    .build();
+        }
+
         return viewBusinessPlanDetailLogic(request.getId());
     }
 

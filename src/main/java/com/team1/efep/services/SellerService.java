@@ -15,9 +15,9 @@ public interface SellerService {
 
     CreateFlowerResponse createFlowerAPI(String token, CreateFlowerRequest request);
 
-    String changeOrderStatus(ChangeOrderStatusRequest request, HttpSession session, Model model);
+    String changeOrderStatus(ChangeOrderStatusRequest request, String token, Model model);
 
-    ChangeOrderStatusResponse changeOrderStatusAPI(ChangeOrderStatusRequest request);
+    ChangeOrderStatusResponse changeOrderStatusAPI(ChangeOrderStatusRequest request, String token);
 
     String viewOrderList(String token, HttpSession session, Model model);
 
@@ -27,37 +27,37 @@ public interface SellerService {
 
     ViewFlowerListForSellerResponse viewFlowerListForSellerAPI(String token, int sellerId);
 
-    String viewBusinessPlan(HttpSession session, Model model);
+    String viewBusinessPlan(String token, Model model);
 
-    ViewBusinessPlanResponse viewBusinessPlanAPI();
+    ViewBusinessPlanResponse viewBusinessPlanAPI(String token);
 
     String cancelBusinessPlan(CancelBusinessPlanRequest request, Model model);
 
     CancelBusinessPlanResponse cancelBusinessPlanAPI(CancelBusinessPlanRequest request);
 
-    String viewBuyerList(HttpSession session, Model model);
+    String viewBuyerList(String token, Model model);
 
-    ViewBuyerListResponse viewBuyerListAPI(ViewBuyerListRequest request);
+    ViewBuyerListResponse viewBuyerListAPI(ViewBuyerListRequest request, String token);
 
     String searchBuyerList(HttpSession session, SearchBuyerListRequest request, Model model);
 
     SearchBuyerListResponse searchBuyerListAPI(SearchBuyerListRequest request, int sellerId);
 
-    String viewOrderDetail(ViewOrderDetailRequest request, HttpSession session, Model model);
+    String viewOrderDetail(String token, ViewOrderDetailRequest request, Model model);
 
-    ViewOrderDetailResponse viewOrderDetailAPI(ViewOrderDetailRequest request);
+    ViewOrderDetailResponse viewOrderDetailAPI(String token, ViewOrderDetailRequest request);
 
     String filterOrder(FilterOrderRequest request, HttpSession session, Model model);
 
     FilterOrderResponse filterOrderAPI(FilterOrderRequest request);
 
-    String createVNPayPaymentLink(VNPayBusinessPlanRequest request, Model model, HttpServletRequest httpServletRequest);
+    String createVNPayPaymentLink(String token, VNPayBusinessPlanRequest request, Model model, HttpServletRequest httpServletRequest);
 
-    VNPayResponse createVNPayPaymentLinkAPI(VNPayBusinessPlanRequest request, HttpServletRequest httpServletRequest);
+    VNPayResponse createVNPayPaymentLinkAPI(String token, VNPayBusinessPlanRequest request, HttpServletRequest httpServletRequest);
 
-    String getPaymentResult(Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session);
+    String getPaymentResult(String token, Map<String, String> params, HttpServletRequest httpServletRequest, Model model);
 
-    VNPayResponse getPaymentResultAPI(Map<String, String> params, int accountId, HttpServletRequest httpServletRequest);
+    VNPayResponse getPaymentResultAPI(String token, Map<String, String> params, HttpServletRequest httpServletRequest);
 
     String sortOrder(FilterOrderRequest filterOrderRequest, SortOrderRequest sortOrderRequest, HttpSession session, Model model);
 
@@ -86,7 +86,6 @@ public interface SellerService {
 
     String confirmOrder(HttpSession session, Model model, int busPlanId);
 
-    String viewBusinessPlanDetail(HttpSession session, Model model);
-
-    ViewBusinessPlanDetailResponse viewBusinessPlanDetailAPI(ViewBusinessPlanDetailRequest request);
+    String viewBusinessPlanDetail(String token, Model model);
+    ViewBusinessPlanDetailResponse viewBusinessPlanDetailAPI(String token, ViewBusinessPlanDetailRequest request);
 }
