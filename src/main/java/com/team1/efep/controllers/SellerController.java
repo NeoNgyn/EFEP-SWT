@@ -116,13 +116,13 @@ public class SellerController {
 
     @PutMapping("/order/status")
     @Operation(hidden = true)
-    public String changeOrderStatus(ChangeOrderStatusRequest request, HttpSession session, Model model) {
-        return sellerService.changeOrderStatus(request, session, model);
+    public String changeOrderStatus(ChangeOrderStatusRequest request, @RequestHeader("Authorization") String token, Model model) {
+        return sellerService.changeOrderStatus(request, token, model);
     }
 
     @PutMapping("/order/status/api")
-    public ChangeOrderStatusResponse changeOrderStatus(@RequestBody ChangeOrderStatusRequest request) {
-        return sellerService.changeOrderStatusAPI(request);
+    public ChangeOrderStatusResponse changeOrderStatusAPI(@RequestBody ChangeOrderStatusRequest request, @RequestHeader("Authorization") String token) {
+        return sellerService.changeOrderStatusAPI(request, token);
     }
 
     @GetMapping("/order/list")
@@ -135,15 +135,16 @@ public class SellerController {
     public ViewOrderListResponse viewOrderListAPI(@RequestHeader("Authorization") String token, @PathVariable int id) {
         return sellerService.viewOrderListAPI(token, id);
     }
-    @PutMapping("/order/detail")
+
+    @GetMapping("/order/detail")
     @Operation(hidden = true)
-    public String viewOrderDetail(ViewOrderDetailRequest request, HttpSession session, Model model) {
-        return sellerService.viewOrderDetail(request, session, model);
+    public String viewOrderDetail(@RequestHeader("Authorization") String token, ViewOrderDetailRequest request, Model model) {
+        return sellerService.viewOrderDetail(token, request, model);
     }
 
-    @PutMapping("/order/detail/api")
-    public ViewOrderDetailResponse viewOrderDetail(@RequestBody ViewOrderDetailRequest request) {
-        return sellerService.viewOrderDetailAPI(request);
+    @GetMapping("/order/detail/api")
+    public ViewOrderDetailResponse viewOrderDetail(@RequestHeader("Authorization") String token, @RequestBody ViewOrderDetailRequest request) {
+        return sellerService.viewOrderDetailAPI(token, request);
     }
 
     @PostMapping("/order/filter")
@@ -159,25 +160,28 @@ public class SellerController {
 
     @PostMapping("/order/payment")
     @Operation(hidden = true)
-    public String createVNPayPaymentLink(VNPayBusinessPlanRequest request, Model model, HttpServletRequest httpServletRequest) {
-        return sellerService.createVNPayPaymentLink(request, model, httpServletRequest);
+    public String createVNPayPaymentLink(@RequestHeader("Authorization") String token, VNPayBusinessPlanRequest request, Model model, HttpServletRequest httpServletRequest) {
+        return sellerService.createVNPayPaymentLink(token, request, model, httpServletRequest);
     }
 
     @PostMapping("/order/payment/api")
-    public VNPayResponse createVNPayPaymentLinkAPI(@RequestBody VNPayBusinessPlanRequest request, HttpServletRequest httpServletRequest) {
-        return sellerService.createVNPayPaymentLinkAPI(request, httpServletRequest);
+    public VNPayResponse createVNPayPaymentLinkAPI(@RequestHeader("Authorization") String token, @RequestBody VNPayBusinessPlanRequest request, HttpServletRequest httpServletRequest) {
+        return sellerService.createVNPayPaymentLinkAPI(token, request, httpServletRequest);
     }
 
     @GetMapping("/order/payment/result")
     @Operation(hidden = true)
-    public String getPaymentResult(@RequestParam Map<String, String> params, HttpServletRequest httpServletRequest, Model model, HttpSession session) {
-        return sellerService.getPaymentResult(params, httpServletRequest, model, session);
+    public String getPaymentResult(@RequestHeader("Authorization") String token, @RequestParam Map<String, String> params, HttpServletRequest httpServletRequest, Model model) {
+        return sellerService.getPaymentResult(token, params, httpServletRequest, model);
     }
 
-//    @GetMapping("/order/payment/result")
-//    public VNPayResponse getPaymentResult(@RequestParam Map<String, String> params, @RequestParam int accountId, HttpServletRequest httpServletRequest) {
-//        return sellerService.getPaymentResultAPI(params, accountId, httpServletRequest);
-//    }
+    @GetMapping("/order/payment/result/api")
+    public VNPayResponse getPaymentResult(
+            @RequestHeader("Authorization") String token,
+            @RequestParam Map<String, String> params,
+            HttpServletRequest httpServletRequest) {
+        return sellerService.getPaymentResultAPI(token, params, httpServletRequest);
+    }
 
     @GetMapping("/order/confirm")
     @Operation(hidden = true)
@@ -205,28 +209,27 @@ public class SellerController {
 
     @PostMapping("/view/plan")
     @Operation(hidden = true)
-    public String viewBusinessPlan(HttpSession session, Model model) {
-        return sellerService.viewBusinessPlan(session, model);
+    public String viewBusinessPlan(@RequestHeader("Authorization") String token, Model model) {
+        return sellerService.viewBusinessPlan(token, model);
     }
 
     @PostMapping("/view/plan/api")
-    public ViewBusinessPlanResponse viewBusinessPlan() {
-        return sellerService.viewBusinessPlanAPI();
+    public ViewBusinessPlanResponse viewBusinessPlanAPI(@RequestHeader("Authorization") String token) {
+        return sellerService.viewBusinessPlanAPI(token);
     }
-
     @PutMapping("/plan/api")
     public CancelBusinessPlanResponse cancelBusinessPlan(@RequestBody CancelBusinessPlanRequest request) {
         return sellerService.cancelBusinessPlanAPI(request);
     }
 
     @GetMapping("/buyer/list")
-    public String viewBuyerList(HttpSession session, Model model) {
-        return sellerService.viewBuyerList(session, model);
+    public String viewBuyerList(@RequestHeader("Authorization") String token, Model model) {
+        return sellerService.viewBuyerList(token, model);
     }
 
     @PostMapping("/buyer/list/api")
-    public ViewBuyerListResponse viewBuyerList(@RequestBody ViewBuyerListRequest request) {
-        return sellerService.viewBuyerListAPI(request);
+    public ViewBuyerListResponse viewBuyerListAPI(@RequestBody ViewBuyerListRequest request, @RequestHeader("Authorization") String token) {
+        return sellerService.viewBuyerListAPI(request, token);
     }
 
     @PostMapping("/search/buyer/")
@@ -241,12 +244,12 @@ public class SellerController {
 
     @GetMapping("/plan/detail")
     @Operation(hidden = true)
-    public String viewBusinessPlanDetail(HttpSession session, Model model) {
-        return sellerService.viewBusinessPlanDetail(session, model);
+    public String viewBusinessPlanDetail(@RequestHeader("Authorization") String token, Model model) {
+        return sellerService.viewBusinessPlanDetail(token, model);
     }
 
     @GetMapping("/plan/detail/api")
-    public ViewBusinessPlanDetailResponse viewBusinessPlanDetail(ViewBusinessPlanDetailRequest request) {
-        return sellerService.viewBusinessPlanDetailAPI(request);
+    public ViewBusinessPlanDetailResponse viewBusinessPlanDetailAPI(@RequestHeader("Authorization") String token, ViewBusinessPlanDetailRequest request) {
+        return sellerService.viewBusinessPlanDetailAPI(token, request);
     }
 }
