@@ -11,8 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-//@RestController
-@Controller
+@RestController
+//@Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 @Tag(name = "Admin")
@@ -87,15 +87,18 @@ public class AdminController {
 
     @GetMapping("/user/list")
     @Operation(hidden = true)
-    public String viewUserList(HttpSession session, Model model) {
-        return adminService.viewUserList(session, model);
+    public String viewUserList(
+            HttpSession session,
+            Model model,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return adminService.viewUserList(session, model, token); // Truyền token vào phương thức viewUserList
     }
 
     @GetMapping("/user/list/api")
-    public ViewUserListResponse viewUserList() {
-        return adminService.viewUserListAPI();
+    public ViewUserListResponse viewUserListAPI(
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return adminService.viewUserListAPI(token); // Truyền token vào phương thức viewUserListAPI
     }
-
     @GetMapping("/view/plan")
     @Operation(hidden = true)
     public String viewBusinessPlan(HttpSession session, Model model) {
@@ -119,37 +122,51 @@ public class AdminController {
     }
 
     @PostMapping("/search/user/")
-    public String searchUserList(HttpSession session, SearchUserListRequest request, Model model) {
-        return adminService.searchUserList(session, request, model);
+    public String searchUserList(
+            HttpSession session,
+            SearchUserListRequest request,
+            Model model,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return adminService.searchUserList(session, request, model, token); // Truyền token vào phương thức searchUserList
     }
 
     @PostMapping("/search/admin/api")
-    public SearchUserListResponse searchUserList(@RequestBody SearchUserListRequest request) {
-        return adminService.searchUserListAPI(request);
+    public SearchUserListResponse searchUserListAPI(
+            @RequestBody SearchUserListRequest request,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return adminService.searchUserListAPI(request, token); // Truyền token vào phương thức searchUserListAPI
     }
 
     @PutMapping("/ban/user")
     @Operation(hidden = true)
-    public String banUser(BanUserRequest request, Model model) {
-        return adminService.banUser(request, model);
+    public String banUser(
+            BanUserRequest request,
+            Model model,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return adminService.banUser(request, model, token); // Truyền token vào phương thức banUser
     }
 
     @PutMapping("/ban/user/api")
-    public BanUserResponse banUser(@RequestBody BanUserRequest request) {
-        return adminService.banUserAPI(request);
+    public BanUserResponse banUserAPI(
+            @RequestBody BanUserRequest request,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return adminService.banUserAPI(request, token); // Truyền token vào phương thức banUserAPI
     }
 
     @PutMapping("/unban/user")
     @Operation(hidden = true)
-    public String unBanUser(UnBanUserRequest request, Model model) {
-        return adminService.unBanUser(request, model);
+    public String unBanUser(
+            UnBanUserRequest request,
+            Model model,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return adminService.unBanUser(request, model, token); // Truyền token vào phương thức unBanUser
     }
-
     @PutMapping("/unban/user/api")
-    public UnBanUserResponse unBanUser(@RequestBody UnBanUserRequest request) {
-        return adminService.unBanUserAPI(request);
+    public UnBanUserResponse unBanUserAPI(
+            @RequestBody UnBanUserRequest request,
+            @RequestHeader("Authorization") String token) { // Thêm token vào header
+        return adminService.unBanUserAPI(request, token); // Truyền token vào phương thức unBanUserAPI
     }
-
     @PostMapping("/account/seller")
     @Operation(hidden = true)
     public String createAccountForSeller(CreateAccountForSellerRequest request, Model model) {

@@ -9,10 +9,7 @@ import com.team1.efep.models.request_models.*;
 import com.team1.efep.models.response_models.*;
 import com.team1.efep.repositories.*;
 import com.team1.efep.services.AdminService;
-import com.team1.efep.utils.ConvertMapIntoStringUtil;
-import com.team1.efep.utils.FileReaderUtil;
-import com.team1.efep.utils.OTPGeneratorUtil;
-import com.team1.efep.utils.OutputCheckerUtil;
+import com.team1.efep.utils.*;
 import com.team1.efep.validations.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -498,14 +495,29 @@ public class AdminServiceImpl implements AdminService {
     //-------------------------------------VIEW USER LIST----------------------------//
 
     @Override
-    public String viewUserList(HttpSession session, Model model) {
+    public String viewUserList(HttpSession session, Model model, String token) { // Thêm token làm tham số
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || !Role.checkIfThisAccountIsAdmin(account)) { // Kiểm tra quyền admin
+            model.addAttribute("error", "Access Denied");
+            return "redirect:/login";
+        }
+
+        session.setAttribute("acc", account); // Lưu thông tin tài khoản vào session
         model.addAttribute("msg", viewUserListLogic());
         return "manageUser";
     }
 
     @Override
-    public ViewUserListResponse viewUserListAPI() {
-        return viewUserListLogic();
+    public ViewUserListResponse viewUserListAPI(String token) { // Thêm token làm tham số
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || !Role.checkIfThisAccountIsAdmin(account)) { // Kiểm tra quyền admin
+            return ViewUserListResponse.builder()
+                    .status("403")
+                    .message("Access Denied. Admin account required.")
+                    .build();
+        }
+
+        return viewUserListLogic(); // Thực hiện logic xem danh sách nếu xác thực thành công
     }
 
     private ViewUserListResponse viewUserListLogic() {
@@ -540,17 +552,44 @@ public class AdminServiceImpl implements AdminService {
 
     //-------------------------------------SEARCH USER LIST----------------------------//
     @Override
-    public String searchUserList(HttpSession session, SearchUserListRequest request, Model model) {
+    public String searchUserList(
+            HttpSession session,
+            SearchUserListRequest request,
+            Model model,
+            String token) { // Thêm token làm tham số
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || !Role.checkIfThisAccountIsAdmin(account)) { // Kiểm tra quyền truy cập
+            model.addAttribute("error", "Access Denied");
+            return "redirect:/login";
+        }
+        session.setAttribute("acc", account); // Lưu thông tin tài khoản vào session
         model.addAttribute("msg", searchUserListLogic(request));
         return "manageUser";
     }
 
     @Override
-    public SearchUserListResponse searchUserListAPI(SearchUserListRequest request) {
-        return searchUserListLogic(request);
+    public SearchUserListResponse searchUserListAPI(SearchUserListRequest request, String token) {
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || !Role.checkIfThisAccountIsAdmin(account)) { // Kiểm tra quyền truy cập
+            return SearchUserListResponse.builder()
+                    .status("403")
+                    .message("Access Denied. Admin account required.")
+                    .build();
+        }
+        return searchUserListLogic(request); // Thực hiện logic tìm kiếm nếu xác thực thành công
     }
 
+    private Account validateTokenAndGetAccount(String token) {
+        String email;
+        try {
+            email = JwtUtil.extractEmail(token.replace("Bearer ", ""));
+            if (email == null) return null;
+        } catch (Exception e) {
+            return null;
+        }
 
+        return accountRepo.findByEmail(email).orElse(null);
+    }
     private SearchUserListResponse searchUserListLogic(SearchUserListRequest request) {
         return SearchUserListResponse.builder()
                 .status("200")
@@ -582,7 +621,13 @@ public class AdminServiceImpl implements AdminService {
     //-------------------------------------BAN USER----------------------------//
 
     @Override
-    public String banUser(BanUserRequest request, Model model) {
+    public String banUser(BanUserRequest request, Model model, String token) { // Thêm token làm tham số
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || !Role.checkIfThisAccountIsAdmin(account)) { // Kiểm tra quyền truy cập
+            model.addAttribute("error", "Access Denied");
+            return "redirect:/login";
+        }
+
         Object output = banUserLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, BanUserResponse.class)) {
             model.addAttribute("msg", (BanUserResponse) output);
@@ -593,7 +638,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public BanUserResponse banUserAPI(BanUserRequest request) {
+    public BanUserResponse banUserAPI(BanUserRequest request, String token) { // Thêm token làm tham số
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || !Role.checkIfThisAccountIsAdmin(account)) { // Kiểm tra quyền truy cập
+            return BanUserResponse.builder()
+                    .status("403")
+                    .message("Access Denied. Admin account required.")
+                    .build();
+        }
+
         Object output = banUserLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, BanUserResponse.class)) {
             return (BanUserResponse) output;
@@ -623,7 +676,13 @@ public class AdminServiceImpl implements AdminService {
     //-------------------------------------UNBAN USER----------------------------//
 
     @Override
-    public String unBanUser(UnBanUserRequest request, Model model) {
+    public String unBanUser(UnBanUserRequest request, Model model, String token) { // Thêm token làm tham số
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || !Role.checkIfThisAccountIsAdmin(account)) { // Kiểm tra quyền admin
+            model.addAttribute("error", "Access Denied");
+            return "redirect:/login";
+        }
+
         Object output = unBanUserLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, UnBanUserResponse.class)) {
             model.addAttribute("msg", (UnBanUserResponse) output);
@@ -634,7 +693,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public UnBanUserResponse unBanUserAPI(UnBanUserRequest request) {
+    public UnBanUserResponse unBanUserAPI(UnBanUserRequest request, String token) { // Thêm token làm tham số
+        Account account = validateTokenAndGetAccount(token); // Xác thực token và lấy tài khoản
+        if (account == null || !Role.checkIfThisAccountIsAdmin(account)) { // Kiểm tra quyền admin
+            return UnBanUserResponse.builder()
+                    .status("403")
+                    .message("Access Denied. Admin account required.")
+                    .build();
+        }
+
         Object output = unBanUserLogic(request);
         if (OutputCheckerUtil.checkIfThisIsAResponseObject(output, UnBanUserResponse.class)) {
             return (UnBanUserResponse) output;
